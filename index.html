@@ -1,0 +1,2514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sahay-Setu — Right Help · Right Person · Right Place · Right Time</title>
+  <meta name="description" content="Sahay-Setu is a modern disaster management and relief coordination platform connecting Citizens, NGOs, and Government authorities for effective emergency response." />
+  <meta name="keywords" content="disaster management, relief coordination, emergency response, NGO, government, citizen help" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a class="nav-brand" href="#" id="brand-link" onclick="showSection('home')">
+        <div class="brand-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" fill="url(#hexGrad)" stroke="rgba(20,184,166,0.4)" stroke-width="1"/>
+            <path d="M14 6L10 14H14L11 22L20 12H15L18 6H14Z" fill="white"/>
+            <defs>
+              <linearGradient id="hexGrad" x1="2" y1="2" x2="26" y2="26" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#14b8a6"/>
+                <stop offset="1" stop-color="#06b6d4"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">Sahay-Setu</span>
+          <span class="brand-tagline">Disaster Relief Platform</span>
+        </div>
+      </a>
+
+      <div class="nav-links" id="navLinks">
+        <a class="nav-link active" href="#" onclick="showSection('home')" id="nav-home">Home</a>
+        <a class="nav-link" href="#" onclick="showSection('citizen')" id="nav-citizen">
+          <span class="nav-icon">👤</span> Citizen
+        </a>
+        <a class="nav-link" href="#" onclick="showSection('ngo')" id="nav-ngo">
+          <span class="nav-icon">🤝</span> NGO
+        </a>
+        <a class="nav-link" href="#" onclick="showSection('government')" id="nav-government">
+          <span class="nav-icon">🏛️</span> Government
+        </a>
+        <a class="nav-link" href="#" onclick="showSection('helpguide')" id="nav-helpguide">
+          <span class="nav-icon">📋</span> Help Guide
+        </a>
+        <a class="nav-link" href="#" onclick="showSection('about')" id="nav-about">
+          <span class="nav-icon">ℹ️</span> About
+        </a>
+        <div class="nav-alert-badge">
+          <span class="pulse-dot"></span>
+          <span>3 Active Alerts</span>
+        </div>
+      </div>
+            <!-- Authentication buttons -->
+      <div class="auth-nav" id="authNav">
+        <button type="button" class="auth-nav-btn auth-nav-login" id="loginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Login
+        </button>
+        <button type="button" class="auth-nav-btn auth-nav-signup" id="signupBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          Sign Up
+        </button>
+        <button type="button" class="auth-nav-btn auth-nav-profile" id="profileBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Profile
+        </button>
+      </div>
+
+      <div class="auth-user" id="authUser" hidden>
+        <div class="auth-user-info" id="profileUserBtn">
+          <div class="auth-avatar" id="authAvatar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <span class="auth-user-email" id="authUserEmail"></span>
+        </div>
+        <button type="button" class="auth-nav-btn auth-nav-logout" id="logoutBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </button>
+      </div>
+
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== AUTH MODAL ===== -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-modal-backdrop" id="authBackdrop"></div>
+
+    <!-- Animated background -->
+    <div class="auth-bg-effects">
+      <div class="auth-orb auth-orb-1"></div>
+      <div class="auth-orb auth-orb-2"></div>
+      <div class="auth-orb auth-orb-3"></div>
+      <div class="auth-grid-bg"></div>
+      <div class="auth-particles" id="authParticles"></div>
+    </div>
+
+    <div class="auth-modal" id="authModal">
+      <!-- Close button -->
+      <button class="auth-close" id="authClose" aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <!-- Left panel - branding / visual -->
+      <div class="auth-left">
+        <div class="auth-left-content">
+          <div class="auth-brand-mark">
+            <svg width="48" height="48" viewBox="0 0 28 28" fill="none">
+              <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" fill="url(#authHexGrad)" stroke="rgba(20,184,166,0.4)" stroke-width="1"/>
+              <path d="M14 6L10 14H14L11 22L20 12H15L18 6H14Z" fill="white"/>
+              <defs>
+                <linearGradient id="authHexGrad" x1="2" y1="2" x2="26" y2="26" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#14b8a6"/>
+                  <stop offset="1" stop-color="#06b6d4"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <h2 class="auth-brand-title">Sahay-Setu</h2>
+          <p class="auth-brand-subtitle">Disaster Relief Platform</p>
+          <div class="auth-brand-divider"></div>
+          <p class="auth-brand-desc">Join thousands of citizens, NGOs, and government bodies working together for rapid disaster response.</p>
+          <div class="auth-trust-badges">
+            <div class="auth-trust-item">
+              <span class="auth-trust-icon">🔒</span>
+              <span>Secure & Encrypted</span>
+            </div>
+            <div class="auth-trust-item">
+              <span class="auth-trust-icon">⚡</span>
+              <span>Instant Access</span>
+            </div>
+            <div class="auth-trust-item">
+              <span class="auth-trust-icon">🌐</span>
+              <span>24/7 Available</span>
+            </div>
+          </div>
+          <div class="auth-stats-mini">
+            <div class="auth-stat-mini">
+              <span class="auth-stat-num">12K+</span>
+              <span class="auth-stat-lbl">Active Users</span>
+            </div>
+            <div class="auth-stat-divider"></div>
+            <div class="auth-stat-mini">
+              <span class="auth-stat-num">89</span>
+              <span class="auth-stat-lbl">Verified NGOs</span>
+            </div>
+            <div class="auth-stat-divider"></div>
+            <div class="auth-stat-mini">
+              <span class="auth-stat-num">8.9K</span>
+              <span class="auth-stat-lbl">Cases Resolved</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right panel - forms -->
+      <div class="auth-right">
+        <!-- Tab switcher -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tabLogin" data-tab="login">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Sign In
+          </button>
+          <button class="auth-tab" id="tabSignup" data-tab="signup">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+            Create Account
+          </button>
+          <div class="auth-tab-indicator" id="authTabIndicator"></div>
+        </div>
+
+        <!-- Social sign-in buttons -->
+        <div class="auth-social">
+          <button class="auth-social-btn auth-google" id="googleSignIn" type="button">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A11.96 11.96 0 0 0 1 12c0 1.94.46 3.77 1.18 5.43l3.66-2.84z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Continue with Google
+          </button>
+        </div>
+
+        <div class="auth-divider-row">
+          <span class="auth-divider-line"></span>
+          <span class="auth-divider-text">or continue with email</span>
+          <span class="auth-divider-line"></span>
+        </div>
+
+        <!-- Login Form -->
+        <form class="auth-form" id="authLoginForm">
+          <div class="auth-field">
+            <label class="auth-label" for="loginEmail">Email Address</label>
+            <div class="auth-input-wrap">
+              <svg class="auth-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              <input type="email" id="loginEmail" class="auth-input" placeholder="you@example.com" required autocomplete="email" />
+              <div class="auth-input-glow"></div>
+            </div>
+          </div>
+          <div class="auth-field">
+            <div class="auth-label-row">
+              <label class="auth-label" for="loginPassword">Password</label>
+              <a href="#" class="auth-forgot" id="forgotPassword">Forgot password?</a>
+            </div>
+            <div class="auth-input-wrap">
+              <svg class="auth-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input type="password" id="loginPassword" class="auth-input" placeholder="Enter your password" required autocomplete="current-password" />
+              <button type="button" class="auth-toggle-pw" id="toggleLoginPw" aria-label="Toggle password visibility">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <div class="auth-input-glow"></div>
+            </div>
+          </div>
+          <div class="auth-remember">
+            <label class="auth-checkbox-wrap">
+              <input type="checkbox" id="rememberMe" class="auth-checkbox" />
+              <span class="auth-checkmark"></span>
+              <span>Remember me for 30 days</span>
+            </label>
+          </div>
+          <button type="submit" class="auth-submit" id="authLoginSubmit">
+            <span class="auth-submit-text">Sign In</span>
+            <span class="auth-submit-loader" hidden>
+              <span class="auth-spinner"></span>
+            </span>
+            <svg class="auth-submit-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </form>
+
+        <!-- Signup Form -->
+        <form class="auth-form" id="authSignupForm" hidden>
+          <div class="auth-field">
+            <label class="auth-label" for="signupName">Full Name</label>
+            <div class="auth-input-wrap">
+              <svg class="auth-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" id="signupName" class="auth-input" placeholder="Enter your full name" required autocomplete="name" />
+              <div class="auth-input-glow"></div>
+            </div>
+          </div>
+          <div class="auth-field">
+            <label class="auth-label" for="signupEmail">Email Address</label>
+            <div class="auth-input-wrap">
+              <svg class="auth-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              <input type="email" id="signupEmail" class="auth-input" placeholder="you@example.com" required autocomplete="email" />
+              <div class="auth-input-glow"></div>
+            </div>
+          </div>
+          <div class="auth-field">
+            <label class="auth-label" for="signupPassword">Password</label>
+            <div class="auth-input-wrap">
+              <svg class="auth-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input type="password" id="signupPassword" class="auth-input" placeholder="Create a password (min 6 chars)" required minlength="6" autocomplete="new-password" />
+              <button type="button" class="auth-toggle-pw" id="toggleSignupPw" aria-label="Toggle password visibility">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <div class="auth-input-glow"></div>
+            </div>
+            <div class="auth-pw-strength" id="pwStrength">
+              <div class="auth-pw-bar"><div class="auth-pw-fill" id="pwFill"></div></div>
+              <span class="auth-pw-label" id="pwLabel"></span>
+            </div>
+          </div>
+          <div class="auth-remember">
+            <label class="auth-checkbox-wrap">
+              <input type="checkbox" id="agreeTerms" class="auth-checkbox" required />
+              <span class="auth-checkmark"></span>
+              <span>I agree to the <a href="#" class="auth-link">Terms of Service</a> and <a href="#" class="auth-link">Privacy Policy</a></span>
+            </label>
+          </div>
+          <button type="submit" class="auth-submit" id="authSignupSubmit">
+            <span class="auth-submit-text">Create Account</span>
+            <span class="auth-submit-loader" hidden>
+              <span class="auth-spinner"></span>
+            </span>
+            <svg class="auth-submit-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </form>
+
+        <!-- Auth message area -->
+        <div class="auth-message" id="authMessage" hidden></div>
+
+        <!-- Footer text -->
+        <p class="auth-footer-text" id="authFooterLogin">
+          Don't have an account? <button type="button" class="auth-switch-link" id="switchToSignup">Create one for free</button>
+        </p>
+        <p class="auth-footer-text" id="authFooterSignup" hidden>
+          Already have an account? <button type="button" class="auth-switch-link" id="switchToLogin">Sign in instead</button>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main id="main-content">
+
+    <!-- ========== HOME / LANDING ========== -->
+    <section id="section-home" class="section active">
+      <!-- Hero -->
+      <div class="hero">
+        <div class="hero-bg-grid"></div>
+        <div class="hero-particles" id="particles"></div>
+        <div class="hero-content">
+          <div class="hero-badge">
+            <span class="pulse-dot red"></span>
+            <span>Emergency Coordination System — Active</span>
+          </div>
+          <h1 class="hero-title">
+            <span class="gradient-text">Sahay-Setu</span>
+            <br/>Disaster Relief Platform
+          </h1>
+          <p class="hero-mantra">
+            <span class="mantra-item">Right Help</span>
+            <span class="mantra-sep">→</span>
+            <span class="mantra-item">Right Person</span>
+            <span class="mantra-sep">→</span>
+            <span class="mantra-item">Right Place</span>
+            <span class="mantra-sep">→</span>
+            <span class="mantra-item">Right Time</span>
+          </p>
+          <p class="hero-desc">
+            A unified platform connecting <strong>Citizens, NGOs, and Government</strong> authorities to deliver rapid, coordinated disaster response and relief management.
+          </p>
+          <div class="hero-actions">
+            <button class="btn btn-emergency" onclick="showSection('citizen')">
+              🚨 Report Emergency
+            </button>
+            <button class="btn btn-secondary" onclick="showSection('helpguide')">
+              📋 Emergency Guide
+            </button>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-stats-grid">
+            <div class="stat-card urgent">
+              <div class="stat-icon">🚨</div>
+              <div class="stat-value">247</div>
+              <div class="stat-label">Active Requests</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🤝</div>
+              <div class="stat-value">89</div>
+              <div class="stat-label">Verified NGOs</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">👥</div>
+              <div class="stat-value">12,400</div>
+              <div class="stat-label">Volunteers</div>
+            </div>
+            <div class="stat-card success">
+              <div class="stat-icon">✅</div>
+              <div class="stat-value">8,923</div>
+              <div class="stat-label">Resolved</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Disaster Ticker -->
+      <div class="ticker-bar">
+        <div class="ticker-label">
+          <span class="pulse-dot red"></span> LIVE ALERTS
+        </div>
+        <div class="ticker-content">
+          <div class="ticker-inner" id="tickerInner">
+            <span>🌊 Flood Warning — Mumbai Coastal Regions — HIGH SEVERITY</span>
+            <span>🌪️ Cyclone Alert — Odisha Coast — CRITICAL</span>
+            <span>🔥 Forest Fire — Uttarakhand — HIGH</span>
+            <span>🏚️ Building Collapse — Chennai — CRITICAL — Rescue Operations Underway</span>
+            <span>⛈️ Heavy Rainfall — Bihar, UP — MEDIUM</span>
+            <span>🌡️ Heatwave Advisory — Rajasthan — HIGH</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Three Portal Cards -->
+      <div class="portal-section">
+        <div class="section-header">
+          <h2>Access Your Portal</h2>
+          <p>Select your role to access the right tools and resources</p>
+        </div>
+        <div class="portal-grid">
+          <div class="portal-card citizen-card" onclick="showSection('citizen')">
+            <div class="portal-icon">👤</div>
+            <h3>Citizen Portal</h3>
+            <p>Report emergencies, request help, register as a volunteer, donate resources, and track your requests in real time.</p>
+            <ul class="portal-features">
+              <li>✓ Report Disaster / Request Help</li>
+              <li>✓ Track Request Status</li>
+              <li>✓ Register as Volunteer</li>
+              <li>✓ Donate & Contribute</li>
+              <li>✓ View Nearby Relief</li>
+            </ul>
+            <button class="portal-btn">Enter Citizen Portal →</button>
+          </div>
+
+          <div class="portal-card ngo-card" onclick="showSection('ngo')">
+            <div class="portal-icon">🤝</div>
+            <h3>NGO Portal</h3>
+            <p>Manage relief operations, coordinate resources, handle volunteers, and respond to citizen requests efficiently.</p>
+            <ul class="portal-features">
+              <li>✓ Manage Emergency Requests</li>
+              <li>✓ Resource Coordination</li>
+              <li>✓ Volunteer Management</li>
+              <li>✓ Relief Camp Operations</li>
+              <li>✓ Donation Management</li>
+            </ul>
+            <button class="portal-btn">Enter NGO Portal →</button>
+          </div>
+
+          <div class="portal-card gov-card" onclick="showSection('government')">
+            <div class="portal-icon">🏛️</div>
+            <h3>Government Portal</h3>
+            <p>Monitor disasters, issue alerts, verify NGOs, coordinate relief efforts, and access analytics across all regions.</p>
+            <ul class="portal-features">
+              <li>✓ Issue Disaster Alerts</li>
+              <li>✓ Monitor All Operations</li>
+              <li>✓ Verify & Approve NGOs</li>
+              <li>✓ Resource Oversight</li>
+              <li>✓ Analytics & Reports</li>
+            </ul>
+            <button class="portal-btn">Enter Government Portal →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Flow -->
+      <div class="flow-section">
+        <div class="section-header">
+          <h2>How It Works</h2>
+          <p>From emergency report to resolved — every step coordinated</p>
+        </div>
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-num">1</div>
+            <div class="flow-icon">📍</div>
+            <h4>Report Need</h4>
+            <p>Citizen submits emergency request with location and details</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-num">2</div>
+            <div class="flow-icon">🔍</div>
+            <h4>Verification</h4>
+            <p>Request is verified and categorized by urgency level</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-num">3</div>
+            <div class="flow-icon">🤝</div>
+            <h4>Coordination</h4>
+            <p>NGO & Government coordinate resources and response teams</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-num">4</div>
+            <div class="flow-icon">🚁</div>
+            <h4>Assistance</h4>
+            <p>Volunteers and resources deployed to the affected location</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-num">5</div>
+            <div class="flow-icon">✅</div>
+            <h4>Resolved</h4>
+            <p>Help delivered and request marked resolved with report</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Disasters Map Placeholder -->
+      <div class="map-section">
+        <div class="section-header">
+          <h2>Active Disaster Zones</h2>
+          <p>Real-time overview of ongoing emergencies across India</p>
+        </div>
+        <div class="map-container">
+          <div class="map-placeholder" id="indiaMapPlaceholder">
+            <div class="map-legend">
+              <span class="legend-item"><span class="dot critical"></span>Critical</span>
+              <span class="legend-item"><span class="dot high"></span>High</span>
+              <span class="legend-item"><span class="dot medium"></span>Medium</span>
+              <span class="legend-item"><span class="dot low"></span>Low</span>
+            </div>
+            <svg class="india-svg" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M200 20 L240 30 L280 50 L320 80 L340 120 L350 160 L340 200 L320 230 L310 270 L300 310 L280 350 L260 380 L240 410 L220 440 L200 460 L180 440 L160 410 L140 380 L120 350 L100 310 L90 270 L80 230 L60 200 L50 160 L60 120 L80 80 L120 50 L160 30 Z" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+              <!-- Disaster markers -->
+              <circle cx="185" cy="320" r="12" fill="#ef4444" opacity="0.85" class="map-pulse">
+                <animate attributeName="r" values="10;16;10" dur="2s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.85;0.4;0.85" dur="2s" repeatCount="indefinite"/>
+              </circle>
+              <text x="200" y="325" fill="white" font-size="9" font-family="Inter">Mumbai</text>
+              <circle cx="220" cy="200" r="10" fill="#f97316" opacity="0.85" class="map-pulse">
+                <animate attributeName="r" values="8;14;8" dur="2.5s" repeatCount="indefinite"/>
+              </circle>
+              <text x="235" y="205" fill="white" font-size="9" font-family="Inter">Odisha</text>
+              <circle cx="170" cy="140" r="8" fill="#d97706" opacity="0.85">
+                <animate attributeName="r" values="6;11;6" dur="3s" repeatCount="indefinite"/>
+              </circle>
+              <text x="183" y="145" fill="white" font-size="9" font-family="Inter">Uttarakhand</text>
+              <circle cx="200" cy="390" r="9" fill="#ef4444" opacity="0.85">
+                <animate attributeName="r" values="7;13;7" dur="1.8s" repeatCount="indefinite"/>
+              </circle>
+              <text x="215" y="395" fill="white" font-size="9" font-family="Inter">Chennai</text>
+              <circle cx="120" cy="200" r="7" fill="#ca8a04" opacity="0.75">
+                <animate attributeName="r" values="5;10;5" dur="3.5s" repeatCount="indefinite"/>
+              </circle>
+              <text x="90" y="215" fill="white" font-size="9" font-family="Inter">Bihar/UP</text>
+            </svg>
+            <div class="map-overlay-text">Live Disaster Map • India</div>
+          </div>
+          <div class="map-sidebar">
+            <h4>Active Incidents</h4>
+            <div class="incident-list">
+              <div class="incident-item critical">
+                <div class="incident-badge critical">CRITICAL</div>
+                <div class="incident-info">
+                  <strong>Cyclone Alert</strong>
+                  <span>Odisha Coast</span>
+                </div>
+                <div class="incident-time">2h ago</div>
+              </div>
+              <div class="incident-item critical">
+                <div class="incident-badge critical">CRITICAL</div>
+                <div class="incident-info">
+                  <strong>Building Collapse</strong>
+                  <span>Chennai, TN</span>
+                </div>
+                <div class="incident-time">4h ago</div>
+              </div>
+              <div class="incident-item high">
+                <div class="incident-badge high">HIGH</div>
+                <div class="incident-info">
+                  <strong>Flood Warning</strong>
+                  <span>Mumbai Coastal</span>
+                </div>
+                <div class="incident-time">6h ago</div>
+              </div>
+              <div class="incident-item high">
+                <div class="incident-badge high">HIGH</div>
+                <div class="incident-info">
+                  <strong>Forest Fire</strong>
+                  <span>Uttarakhand</span>
+                </div>
+                <div class="incident-time">8h ago</div>
+              </div>
+              <div class="incident-item medium">
+                <div class="incident-badge medium">MEDIUM</div>
+                <div class="incident-info">
+                  <strong>Heavy Rainfall</strong>
+                  <span>Bihar, UP</span>
+                </div>
+                <div class="incident-time">12h ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== CITIZEN PORTAL ========== -->
+    <section id="section-citizen" class="section">
+      <div class="portal-hero citizen-hero">
+        <div class="portal-hero-content">
+          <div class="portal-hero-badge">Citizen Portal</div>
+          <h1>Get Help. Give Help. Stay Safe.</h1>
+          <p>Report emergencies, request assistance, or contribute to relief operations in your area.</p>
+        </div>
+      </div>
+
+      <div class="portal-body">
+        <!-- Citizen Sub-tabs -->
+        <div class="sub-tabs" id="citizenTabs">
+          <button class="sub-tab active" onclick="showCitizenTab('report')" id="ctab-report">🚨 Report Emergency</button>
+          <button class="sub-tab" onclick="showCitizenTab('request')" id="ctab-request">🆘 Request Help</button>
+          <button class="sub-tab" onclick="showCitizenTab('track')" id="ctab-track">📊 Track Status</button>
+          <button class="sub-tab" onclick="showCitizenTab('volunteer')" id="ctab-volunteer">👐 Volunteer</button>
+          <button class="sub-tab" onclick="showCitizenTab('donate')" id="ctab-donate">💛 Donate</button>
+          <button class="sub-tab" onclick="showCitizenTab('nearby')" id="ctab-nearby">📍 Nearby Relief</button>
+        </div>
+
+        <!-- Report Emergency Tab -->
+        <div class="tab-content active" id="citizen-tab-report">
+          <div class="content-grid two-col">
+            <div class="form-panel">
+              <div class="panel-header">
+                <h3>🚨 Report an Emergency</h3>
+                <p>Your report helps us dispatch the right help immediately.</p>
+              </div>
+              <form class="relief-form" onsubmit="submitReport(event)">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="rep-name">Your Name <span class="req">*</span></label>
+                    <input type="text" id="rep-name" placeholder="Full Name" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="rep-phone">Phone Number <span class="req">*</span></label>
+                    <input type="tel" id="rep-phone" placeholder="+91 XXXXX XXXXX" required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="rep-type">Disaster Type <span class="req">*</span></label>
+                  <select id="rep-type" required>
+                    <option value="">Select disaster type...</option>
+                    <option>🌊 Flood</option>
+                    <option>🌍 Earthquake</option>
+                    <option>🔥 Fire</option>
+                    <option>🌪️ Cyclone</option>
+                    <option>🏚️ Building Collapse</option>
+                    <option>🌡️ Heatwave</option>
+                    <option>⛈️ Landslide</option>
+                    <option>☢️ Chemical / Industrial</option>
+                    <option>🚗 Road Accident</option>
+                    <option>Other Emergency</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="rep-location">Location / Address <span class="req">*</span></label>
+                  <div class="location-input">
+                    <input type="text" id="rep-location" placeholder="Village, Block, District, State..." required />
+                    <button type="button" class="location-btn" onclick="getLocation()">📍 Auto-detect</button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="rep-severity">Severity Level <span class="req">*</span></label>
+                  <div class="severity-selector">
+                    <label class="severity-opt critical-opt">
+                      <input type="radio" name="severity" value="critical" required />
+                      <span>🔴 Critical</span>
+                    </label>
+                    <label class="severity-opt high-opt">
+                      <input type="radio" name="severity" value="high" />
+                      <span>🟠 High</span>
+                    </label>
+                    <label class="severity-opt medium-opt">
+                      <input type="radio" name="severity" value="medium" />
+                      <span>🟡 Medium</span>
+                    </label>
+                    <label class="severity-opt low-opt">
+                      <input type="radio" name="severity" value="low" />
+                      <span>🟢 Low</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="rep-affected">People Affected (approx.)</label>
+                    <input type="number" id="rep-affected" placeholder="e.g. 50" min="1" />
+                  </div>
+                  <div class="form-group">
+                    <label for="rep-injuries">Injuries / Casualties</label>
+                    <select id="rep-injuries">
+                      <option>None</option>
+                      <option>Minor (1–5)</option>
+                      <option>Moderate (6–20)</option>
+                      <option>Severe (20+)</option>
+                      <option>Unknown</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="rep-desc">Describe the Situation <span class="req">*</span></label>
+                  <textarea id="rep-desc" rows="4" placeholder="Describe what happened, current conditions, immediate needs..." required></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="rep-contact">Alternative Contact / Notes</label>
+                  <input type="text" id="rep-contact" placeholder="Any other contact or important info..." />
+                </div>
+                <button type="submit" class="btn btn-emergency btn-full">
+                  🚨 Submit Emergency Report
+                </button>
+              </form>
+            </div>
+            <div class="info-panel">
+              <div class="info-card emergency-flow">
+                <h4>Emergency Flow</h4>
+                <div class="mini-flow">
+                  <div class="mflow-step active-step">📝 Report Need</div>
+                  <div class="mflow-arrow">↓</div>
+                  <div class="mflow-step">📋 Add Details & Location</div>
+                  <div class="mflow-arrow">↓</div>
+                  <div class="mflow-step">📤 Submit Request</div>
+                  <div class="mflow-arrow">↓</div>
+                  <div class="mflow-step">🔍 Verification</div>
+                  <div class="mflow-arrow">↓</div>
+                  <div class="mflow-step">🤝 NGO / Gov Coordination</div>
+                  <div class="mflow-arrow">↓</div>
+                  <div class="mflow-step">🚁 Assistance Deployed</div>
+                  <div class="mflow-arrow">↓</div>
+                  <div class="mflow-step">✅ Resolved</div>
+                </div>
+              </div>
+              <div class="info-card">
+                <h4>📞 Emergency Contacts</h4>
+                <div class="contact-list">
+                  <div class="contact-item">
+                    <span class="contact-name">National Emergency</span>
+                    <a href="tel:112" class="contact-num">112</a>
+                  </div>
+                  <div class="contact-item">
+                    <span class="contact-name">Police</span>
+                    <a href="tel:100" class="contact-num">100</a>
+                  </div>
+                  <div class="contact-item">
+                    <span class="contact-name">Ambulance</span>
+                    <a href="tel:108" class="contact-num">108</a>
+                  </div>
+                  <div class="contact-item">
+                    <span class="contact-name">Fire Brigade</span>
+                    <a href="tel:101" class="contact-num">101</a>
+                  </div>
+                  <div class="contact-item">
+                    <span class="contact-name">NDRF</span>
+                    <a href="tel:011-24363260" class="contact-num">011-24363260</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Request Help Tab -->
+        <div class="tab-content" id="citizen-tab-request">
+          <div class="panel-header">
+            <h3>🆘 Request Assistance</h3>
+            <p>Tell us what kind of help you need right now.</p>
+          </div>
+          <div class="content-grid two-col">
+            <form class="relief-form" onsubmit="submitHelpRequest(event)">
+              <div class="form-group">
+                <label>Type of Help Needed <span class="req">*</span></label>
+                <div class="help-type-grid">
+                  <label class="help-type-btn"><input type="checkbox" value="food" /><span>🍱 Food</span></label>
+                  <label class="help-type-btn"><input type="checkbox" value="water" /><span>💧 Water</span></label>
+                  <label class="help-type-btn"><input type="checkbox" value="medicine" /><span>💊 Medicine</span></label>
+                  <label class="help-type-btn"><input type="checkbox" value="shelter" /><span>🏠 Shelter</span></label>
+                  <label class="help-type-btn"><input type="checkbox" value="clothing" /><span>👕 Clothing</span></label>
+                  <label class="help-type-btn"><input type="checkbox" value="rescue" /><span>🚁 Rescue</span></label>
+                  <label class="help-type-btn"><input type="checkbox" value="medical" /><span>🏥 Medical Aid</span></label>
+                  <label class="help-type-btn"><input type="checkbox" value="transport" /><span>🚌 Transport</span></label>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="req-name">Full Name <span class="req">*</span></label>
+                  <input type="text" id="req-name" placeholder="Your Name" required />
+                </div>
+                <div class="form-group">
+                  <label for="req-people">Number of People</label>
+                  <input type="number" id="req-people" placeholder="Family size" min="1" value="1" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="req-loc">Current Location <span class="req">*</span></label>
+                <div class="location-input">
+                  <input type="text" id="req-loc" placeholder="Your exact location..." required />
+                  <button type="button" class="location-btn" onclick="getLocation('req-loc')">📍 Auto</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="req-urgent">Is this urgent?</label>
+                <select id="req-urgent">
+                  <option value="yes">Yes — I need help immediately</option>
+                  <option value="soon">Within a few hours</option>
+                  <option value="today">Within today</option>
+                  <option value="planning">Planning ahead</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="req-details">Additional Details</label>
+                <textarea id="req-details" rows="3" placeholder="Any special needs, medical conditions, accessibility requirements..."></textarea>
+              </div>
+              <button type="submit" class="btn btn-emergency btn-full">🆘 Submit Help Request</button>
+            </form>
+            <div class="nearby-resources">
+              <h4>📍 Nearby Relief Resources</h4>
+              <div class="resource-cards">
+                <div class="resource-card">
+                  <div class="resource-type food">🍱 Food</div>
+                  <div class="resource-detail">
+                    <strong>Community Kitchen — Sector 4</strong>
+                    <span>2.3 km away · Serving 500/day · Open</span>
+                  </div>
+                  <div class="resource-status open">OPEN</div>
+                </div>
+                <div class="resource-card">
+                  <div class="resource-type shelter">🏠 Shelter</div>
+                  <div class="resource-detail">
+                    <strong>Relief Camp — School Ground</strong>
+                    <span>1.1 km away · 200 beds available</span>
+                  </div>
+                  <div class="resource-status open">OPEN</div>
+                </div>
+                <div class="resource-card">
+                  <div class="resource-type medical">🏥 Medical</div>
+                  <div class="resource-detail">
+                    <strong>PHC Relief Unit — Main Road</strong>
+                    <span>0.8 km away · Doctors available</span>
+                  </div>
+                  <div class="resource-status open">OPEN</div>
+                </div>
+                <div class="resource-card">
+                  <div class="resource-type water">💧 Water</div>
+                  <div class="resource-detail">
+                    <strong>Water Distribution — Market</strong>
+                    <span>1.5 km away · Every 2 hours</span>
+                  </div>
+                  <div class="resource-status limited">LIMITED</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Track Status Tab -->
+        <div class="tab-content" id="citizen-tab-track">
+          <div class="panel-header">
+            <h3>📊 Track Your Requests</h3>
+            <p>Monitor the status of your submitted emergency requests.</p>
+          </div>
+          <div class="track-search">
+            <input type="text" id="track-id" placeholder="Enter your Request ID (e.g. SS-2024-1234)..." />
+            <button class="btn btn-primary" onclick="trackRequest()">🔍 Track</button>
+          </div>
+          <div id="track-result" aria-live="polite"></div>
+          <div class="tracked-requests">
+            <h4>Your Recent Requests</h4>
+            <div class="request-timeline">
+              <div class="req-card">
+                <div class="req-id">SS-2024-1247</div>
+                <div class="req-type">🌊 Flood Relief — Food & Water</div>
+                <div class="req-loc">📍 Sector 12, Patna, Bihar</div>
+                <div class="req-progress">
+                  <div class="progress-steps">
+                    <span class="pstep done">Submitted</span>
+                    <span class="pstep done">Verified</span>
+                    <span class="pstep active">Assigned</span>
+                    <span class="pstep">En Route</span>
+                    <span class="pstep">Delivered</span>
+                    <span class="pstep">Resolved</span>
+                  </div>
+                </div>
+                <div class="req-status in-progress">IN PROGRESS</div>
+                <div class="req-note">Assigned to: Seva Foundation NGO · ETA: 45 mins</div>
+              </div>
+              <div class="req-card">
+                <div class="req-id">SS-2024-1189</div>
+                <div class="req-type">🏥 Medical Assistance</div>
+                <div class="req-loc">📍 Ward 5, Guwahati, Assam</div>
+                <div class="req-progress">
+                  <div class="progress-steps">
+                    <span class="pstep done">Submitted</span>
+                    <span class="pstep done">Verified</span>
+                    <span class="pstep done">Assigned</span>
+                    <span class="pstep done">En Route</span>
+                    <span class="pstep done">Delivered</span>
+                    <span class="pstep done">Resolved</span>
+                  </div>
+                </div>
+                <div class="req-status resolved">RESOLVED</div>
+                <div class="req-note">Resolved by: Red Cross India · 3 days ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Volunteer Tab -->
+        <div class="tab-content" id="citizen-tab-volunteer">
+          <div class="panel-header">
+            <h3>👐 Register as a Volunteer</h3>
+            <p>Join thousands of volunteers helping communities during disasters.</p>
+          </div>
+          <div class="content-grid two-col">
+            <form class="relief-form" onsubmit="submitVolunteer(event)">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="vol-name">Full Name <span class="req">*</span></label>
+                  <input type="text" id="vol-name" placeholder="Your Name" required />
+                </div>
+                <div class="form-group">
+                  <label for="vol-age">Age <span class="req">*</span></label>
+                  <input type="number" id="vol-age" placeholder="Age" min="18" max="65" required />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="vol-phone">Phone <span class="req">*</span></label>
+                  <input type="tel" id="vol-phone" placeholder="+91 XXXXX XXXXX" required />
+                </div>
+                <div class="form-group">
+                  <label for="vol-email">Email</label>
+                  <input type="email" id="vol-email" placeholder="email@example.com" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="vol-location">Your Location <span class="req">*</span></label>
+                <input type="text" id="vol-location" placeholder="District, State" required />
+              </div>
+              <div class="form-group">
+                <label>Skills / Availability</label>
+                <div class="help-type-grid">
+                  <label class="help-type-btn"><input type="checkbox" /><span>🏥 First Aid</span></label>
+                  <label class="help-type-btn"><input type="checkbox" /><span>🍳 Cooking</span></label>
+                  <label class="help-type-btn"><input type="checkbox" /><span>🚗 Driving</span></label>
+                  <label class="help-type-btn"><input type="checkbox" /><span>🏊 Swimming</span></label>
+                  <label class="help-type-btn"><input type="checkbox" /><span>💻 Technical</span></label>
+                  <label class="help-type-btn"><input type="checkbox" /><span>🗣️ Languages</span></label>
+                  <label class="help-type-btn"><input type="checkbox" /><span>📦 Logistics</span></label>
+                  <label class="help-type-btn"><input type="checkbox" /><span>🧠 Counseling</span></label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="vol-avail">Availability</label>
+                <select id="vol-avail">
+                  <option>Full-time (during disaster)</option>
+                  <option>Weekends only</option>
+                  <option>Evenings only</option>
+                  <option>On-call basis</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-success btn-full">👐 Register as Volunteer</button>
+            </form>
+            <div class="volunteer-stats-panel">
+              <div class="vol-stat-card">
+                <div class="vol-stat-num">12,400</div>
+                <div class="vol-stat-label">Active Volunteers</div>
+              </div>
+              <div class="vol-stat-card">
+                <div class="vol-stat-num">340</div>
+                <div class="vol-stat-label">Operations This Month</div>
+              </div>
+              <div class="volunteer-testimonials">
+                <h4>Volunteer Stories</h4>
+                <div class="testimonial">
+                  <p>"Joining Sahay-Setu allowed me to reach flood victims within hours. The coordination was seamless."</p>
+                  <strong>— Priya Sharma, Volunteer, Bihar</strong>
+                </div>
+                <div class="testimonial">
+                  <p>"I helped distribute food to 200 families in a week. The platform made it easy to find where I was needed."</p>
+                  <strong>— Rajesh Kumar, Volunteer, Odisha</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Donate Tab -->
+        <div class="tab-content" id="citizen-tab-donate">
+          <div class="panel-header">
+            <h3>💛 Donate to Relief Efforts</h3>
+            <p>Your contribution directly helps disaster victims. All donations go to verified relief operations.</p>
+          </div>
+          <div class="content-grid two-col">
+            <div class="donate-panel">
+              <div class="donation-options">
+                <h4>Choose Amount</h4>
+                <div class="amount-grid">
+                  <button class="amount-btn" onclick="setAmount(500)">₹500</button>
+                  <button class="amount-btn" onclick="setAmount(1000)">₹1,000</button>
+                  <button class="amount-btn" onclick="setAmount(2500)">₹2,500</button>
+                  <button class="amount-btn" onclick="setAmount(5000)">₹5,000</button>
+                </div>
+                <div class="form-group">
+                  <label for="custom-amount">Or enter custom amount (₹)</label>
+                  <input type="number" id="custom-amount" placeholder="Enter amount..." min="10" />
+                </div>
+                <div class="form-group">
+                  <label>Donate To</label>
+                  <select id="donate-to">
+                    <option>Most Urgent — Auto-allocate</option>
+                    <option>🌊 Flood Relief Fund</option>
+                    <option>🌪️ Cyclone Response</option>
+                    <option>🏚️ Shelter & Rehabilitation</option>
+                    <option>💊 Medical Aid Fund</option>
+                    <option>👕 Clothing & Essentials</option>
+                  </select>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="donor-name">Your Name</label>
+                    <input type="text" id="donor-name" placeholder="Full Name" />
+                  </div>
+                  <div class="form-group">
+                    <label for="donor-pan">PAN (for 80G receipt)</label>
+                    <input type="text" id="donor-pan" placeholder="ABCDE1234F" />
+                  </div>
+                </div>
+                <button class="btn btn-warning btn-full" onclick="processDonation()">💛 Donate Now</button>
+                <p class="donation-note">🔒 Secure payment · Tax deductible under 80G · All NGOs verified</p>
+              </div>
+            </div>
+            <div class="impact-panel">
+              <h4>Your Impact</h4>
+              <div class="impact-items">
+                <div class="impact-item">
+                  <span class="impact-amount">₹500</span>
+                  <span class="impact-desc">Feeds a family for 3 days</span>
+                </div>
+                <div class="impact-item">
+                  <span class="impact-amount">₹1,000</span>
+                  <span class="impact-desc">Provides clean water for 10 people</span>
+                </div>
+                <div class="impact-item">
+                  <span class="impact-amount">₹2,500</span>
+                  <span class="impact-desc">Emergency medical kit for 5 people</span>
+                </div>
+                <div class="impact-item">
+                  <span class="impact-amount">₹5,000</span>
+                  <span class="impact-desc">Shelter material for 1 family</span>
+                </div>
+              </div>
+              <div class="donation-total">
+                <div class="total-raised">₹2.4 Crore</div>
+                <div class="total-label">Total Raised This Month</div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-track">
+                    <div class="progress-bar-fill" style="width: 68%"></div>
+                  </div>
+                  <span>68% of ₹3.5Cr monthly goal</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nearby Relief Tab -->
+        <div class="tab-content" id="citizen-tab-nearby">
+          <div class="panel-header">
+            <h3>📍 Nearby Relief Resources</h3>
+            <p>Find food, water, shelter, medical aid, and distribution centers near you.</p>
+          </div>
+          <div class="nearby-controls">
+            <div class="location-input">
+              <input type="text" id="nearby-loc" placeholder="Enter your location..." onchange="loadReliefResources()" />
+              <button class="location-btn" onclick="getLocation('nearby-loc')">📍 Detect</button>
+            </div>
+            <div class="filter-pills">
+              <button class="filter-pill active" onclick="filterNearby('all', this)">All</button>
+              <button class="filter-pill" onclick="filterNearby('food', this)">🍱 Food</button>
+              <button class="filter-pill" onclick="filterNearby('water', this)">💧 Water</button>
+              <button class="filter-pill" onclick="filterNearby('shelter', this)">🏠 Shelter</button>
+              <button class="filter-pill" onclick="filterNearby('medical', this)">🏥 Medical</button>
+            </div>
+          </div>
+          <div class="nearby-grid" id="nearbyGrid">
+            <div class="nearby-card" data-type="food">
+              <div class="nearby-badge food">🍱 Food</div>
+              <h4>Community Kitchen — Sector 4</h4>
+              <p class="nearby-dist">📍 2.3 km away · Managed by Seva Foundation</p>
+              <p>Serving hot meals · 500 people/day capacity · Open 8am–8pm</p>
+              <div class="nearby-meta">
+                <span class="status-open">OPEN NOW</span>
+                <span>Updated 30 min ago</span>
+              </div>
+            </div>
+            <div class="nearby-card" data-type="shelter">
+              <div class="nearby-badge shelter">🏠 Shelter</div>
+              <h4>Relief Camp — Government School</h4>
+              <p class="nearby-dist">📍 1.1 km away · Operated by District Authority</p>
+              <p>200 beds available · Sanitation facilities · 24/7 open</p>
+              <div class="nearby-meta">
+                <span class="status-open">OPEN NOW</span>
+                <span>Updated 1h ago</span>
+              </div>
+            </div>
+            <div class="nearby-card" data-type="medical">
+              <div class="nearby-badge medical">🏥 Medical</div>
+              <h4>PHC Relief Unit — Main Road</h4>
+              <p class="nearby-dist">📍 0.8 km away · PHC Staff + Red Cross</p>
+              <p>Doctors available · Free medicines · First aid · 24/7</p>
+              <div class="nearby-meta">
+                <span class="status-open">OPEN NOW</span>
+                <span>Updated 45 min ago</span>
+              </div>
+            </div>
+            <div class="nearby-card" data-type="water">
+              <div class="nearby-badge water">💧 Water</div>
+              <h4>Water Distribution Point — Market</h4>
+              <p class="nearby-dist">📍 1.5 km away · Municipal Water Board</p>
+              <p>Potable water · Distribution every 2 hours · 20L/family</p>
+              <div class="nearby-meta">
+                <span class="status-limited">LIMITED</span>
+                <span>Updated 2h ago</span>
+              </div>
+            </div>
+            <div class="nearby-card" data-type="food">
+              <div class="nearby-badge food">🍱 Food</div>
+              <h4>Dry Ration Distribution — Ward 7</h4>
+              <p class="nearby-dist">📍 3.7 km away · District Administration</p>
+              <p>Rice, Dal, Oil packets · 1 week supply per family · Register first</p>
+              <div class="nearby-meta">
+                <span class="status-open">OPEN NOW</span>
+                <span>Updated 3h ago</span>
+              </div>
+            </div>
+            <div class="nearby-card" data-type="shelter">
+              <div class="nearby-badge shelter">🏠 Shelter</div>
+              <h4>Emergency Shelter — Sports Complex</h4>
+              <p class="nearby-dist">📍 4.2 km away · State Government</p>
+              <p>500 capacity · Full (waitlist open) · Food provided inside</p>
+              <div class="nearby-meta">
+                <span class="status-full">FULL</span>
+                <span>Updated 4h ago</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== NGO PORTAL ========== -->
+    <section id="section-ngo" class="section">
+      <div class="portal-hero ngo-hero">
+        <div class="portal-hero-content">
+          <div class="portal-hero-badge">NGO Portal</div>
+          <h1>Coordinate. Respond. Save Lives.</h1>
+          <p>Manage relief operations, resources, volunteers, and citizen requests from one unified dashboard.</p>
+        </div>
+      </div>
+
+      <div class="portal-body">
+        <!-- NGO Sub-tabs -->
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="showNGOTab('dashboard')" id="ntab-dashboard">📊 Dashboard</button>
+          <button class="sub-tab" onclick="showNGOTab('requests')" id="ntab-requests">📋 Requests</button>
+          <button class="sub-tab" onclick="showNGOTab('resources')" id="ntab-resources">📦 Resources</button>
+          <button class="sub-tab" onclick="showNGOTab('volunteers')" id="ntab-volunteers">👥 Volunteers</button>
+          <button class="sub-tab" onclick="showNGOTab('camps')" id="ntab-camps">⛺ Camps</button>
+          <button class="sub-tab" onclick="showNGOTab('donations')" id="ntab-donations">💰 Donations</button>
+        </div>
+
+        <!-- NGO Dashboard Tab -->
+        <div class="tab-content active" id="ngo-tab-dashboard">
+          <div class="dashboard-header">
+            <div class="org-info">
+              <div class="org-badge verified">✅ VERIFIED NGO</div>
+              <h2>Seva Foundation</h2>
+              <p>Mumbai, Maharashtra · Since 2008 · Reg: 80G/2008/MH4523</p>
+            </div>
+            <div class="dashboard-time">
+              <div class="live-time" id="ngoLiveTime"></div>
+              <div class="last-update">Last sync: just now</div>
+            </div>
+          </div>
+          <div class="kpi-grid">
+            <div class="kpi-card critical-kpi">
+              <div class="kpi-icon">🚨</div>
+              <div class="kpi-value">14</div>
+              <div class="kpi-label">Active Operations</div>
+              <div class="kpi-delta up">+3 today</div>
+            </div>
+            <div class="kpi-card warning-kpi">
+              <div class="kpi-icon">⏳</div>
+              <div class="kpi-value">47</div>
+              <div class="kpi-label">Pending Requests</div>
+              <div class="kpi-delta up">+12 today</div>
+            </div>
+            <div class="kpi-card info-kpi">
+              <div class="kpi-icon">📦</div>
+              <div class="kpi-value">83%</div>
+              <div class="kpi-label">Resources Available</div>
+              <div class="kpi-delta down">-5% today</div>
+            </div>
+            <div class="kpi-card success-kpi">
+              <div class="kpi-icon">👥</div>
+              <div class="kpi-value">284</div>
+              <div class="kpi-label">Active Volunteers</div>
+              <div class="kpi-delta up">+18 today</div>
+            </div>
+            <div class="kpi-card warning-kpi">
+              <div class="kpi-icon">💰</div>
+              <div class="kpi-value">₹42L</div>
+              <div class="kpi-label">Contributions Received</div>
+              <div class="kpi-delta up">+₹3.2L today</div>
+            </div>
+            <div class="kpi-card success-kpi">
+              <div class="kpi-icon">✅</div>
+              <div class="kpi-value">1,247</div>
+              <div class="kpi-label">Resolved This Month</div>
+              <div class="kpi-delta up">+89 today</div>
+            </div>
+          </div>
+
+          <!-- Recent Requests Quick View -->
+          <div class="section-row">
+            <div class="dash-panel">
+              <div class="dp-header">
+                <h4>🆘 Recent Requests</h4>
+                <button class="dp-action" onclick="showNGOTab('requests')">View All →</button>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr><th>ID</th><th>Type</th><th>Location</th><th>Severity</th><th>Status</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>SS-1247</td>
+                    <td>🌊 Flood</td>
+                    <td>Patna, Bihar</td>
+                    <td><span class="badge critical">CRITICAL</span></td>
+                    <td><span class="badge pending">PENDING</span></td>
+                    <td><button class="btn-sm btn-accept" onclick="acceptRequest('SS-1247')">Accept</button></td>
+                  </tr>
+                  <tr>
+                    <td>SS-1246</td>
+                    <td>🏥 Medical</td>
+                    <td>Bhubaneswar, OD</td>
+                    <td><span class="badge high">HIGH</span></td>
+                    <td><span class="badge in-progress-badge">IN PROGRESS</span></td>
+                    <td><button class="btn-sm btn-update">Update</button></td>
+                  </tr>
+                  <tr>
+                    <td>SS-1245</td>
+                    <td>🍱 Food</td>
+                    <td>Bhubaneswar, OD</td>
+                    <td><span class="badge medium">MEDIUM</span></td>
+                    <td><span class="badge pending">PENDING</span></td>
+                    <td><button class="btn-sm btn-accept" onclick="acceptRequest('SS-1245')">Accept</button></td>
+                  </tr>
+                  <tr>
+                    <td>SS-1244</td>
+                    <td>🏠 Shelter</td>
+                    <td>Cuttack, OD</td>
+                    <td><span class="badge high">HIGH</span></td>
+                    <td><span class="badge in-progress-badge">IN PROGRESS</span></td>
+                    <td><button class="btn-sm btn-update">Update</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="dash-panel">
+              <div class="dp-header">
+                <h4>📦 Resource Status</h4>
+                <button class="dp-action" onclick="showNGOTab('resources')">Manage →</button>
+              </div>
+              <div class="resource-bars">
+                <div class="res-bar-item">
+                  <span class="res-label">🍱 Food Packets</span>
+                  <div class="res-bar-track">
+                    <div class="res-bar-fill food-bar" style="width:72%"></div>
+                  </div>
+                  <span class="res-qty">1,800 / 2,500</span>
+                </div>
+                <div class="res-bar-item">
+                  <span class="res-label">💧 Water (Litres)</span>
+                  <div class="res-bar-track">
+                    <div class="res-bar-fill water-bar" style="width:45%"></div>
+                  </div>
+                  <span class="res-qty">4,500 / 10,000</span>
+                </div>
+                <div class="res-bar-item">
+                  <span class="res-label">💊 Medicine Kits</span>
+                  <div class="res-bar-track">
+                    <div class="res-bar-fill medicine-bar" style="width:30%"></div>
+                  </div>
+                  <span class="res-qty">150 / 500</span>
+                </div>
+                <div class="res-bar-item">
+                  <span class="res-label">🏠 Shelter Kits</span>
+                  <div class="res-bar-track">
+                    <div class="res-bar-fill shelter-bar" style="width:60%"></div>
+                  </div>
+                  <span class="res-qty">60 / 100</span>
+                </div>
+                <div class="res-bar-item">
+                  <span class="res-label">👕 Clothing Bundles</span>
+                  <div class="res-bar-track">
+                    <div class="res-bar-fill clothing-bar" style="width:85%"></div>
+                  </div>
+                  <span class="res-qty">850 / 1,000</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NGO Requests Tab -->
+        <div class="tab-content" id="ngo-tab-requests">
+          <div class="panel-header">
+            <h3>📋 Manage Citizen Requests</h3>
+          </div>
+          <div class="filter-bar">
+            <select class="filter-select" id="req-filter-loc">
+              <option>All Locations</option>
+              <option>Bihar</option>
+              <option>Odisha</option>
+              <option>Maharashtra</option>
+              <option>Tamil Nadu</option>
+            </select>
+            <select class="filter-select" id="req-filter-cat">
+              <option>All Categories</option>
+              <option>🌊 Flood</option>
+              <option>🏥 Medical</option>
+              <option>🍱 Food</option>
+              <option>🏠 Shelter</option>
+            </select>
+            <select class="filter-select" id="req-filter-sev">
+              <option>All Severities</option>
+              <option>🔴 Critical</option>
+              <option>🟠 High</option>
+              <option>🟡 Medium</option>
+              <option>🟢 Low</option>
+            </select>
+            <select class="filter-select" id="req-filter-status">
+              <option>All Statuses</option>
+              <option>Pending</option>
+              <option>In Progress</option>
+              <option>Resolved</option>
+            </select>
+            <button class="btn btn-primary" onclick="applyRequestFilters()">Apply Filters</button>
+          </div>
+          <div class="requests-grid" id="ngoRequestsGrid">
+            <div class="request-card critical-card">
+              <div class="rc-header">
+                <span class="rc-id">SS-1247</span>
+                <span class="badge critical">CRITICAL</span>
+                <span class="badge pending">PENDING</span>
+              </div>
+              <div class="rc-type">🌊 Flood — Food & Water Needed</div>
+              <div class="rc-meta">📍 Sector 12, Patna, Bihar · 👨‍👩‍👧‍👦 Affected: 85 people · ⏰ 2 hours ago</div>
+              <div class="rc-desc">Rising water levels. Families stranded. Need immediate food, clean water, and medical check.</div>
+              <div class="rc-actions">
+                <button class="btn-sm btn-accept" onclick="acceptRequest('SS-1247')">✓ Accept</button>
+                <button class="btn-sm btn-assign">👤 Assign Volunteer</button>
+                <button class="btn-sm btn-view">View Details</button>
+              </div>
+            </div>
+            <div class="request-card high-card">
+              <div class="rc-header">
+                <span class="rc-id">SS-1246</span>
+                <span class="badge high">HIGH</span>
+                <span class="badge in-progress-badge">IN PROGRESS</span>
+              </div>
+              <div class="rc-type">🏥 Medical Emergency — Injured Persons</div>
+              <div class="rc-meta">📍 Bhubaneswar, Odisha · 👨‍👩‍👧‍👦 Affected: 12 · ⏰ 4 hours ago</div>
+              <div class="rc-desc">Multiple injuries from cyclone. Need doctors and medicines immediately at the relief camp.</div>
+              <div class="rc-actions">
+                <button class="btn-sm btn-update">📝 Update Status</button>
+                <button class="btn-sm btn-assign">👤 Reassign</button>
+                <button class="btn-sm btn-view">View Details</button>
+              </div>
+            </div>
+            <div class="request-card medium-card">
+              <div class="rc-header">
+                <span class="rc-id">SS-1245</span>
+                <span class="badge medium">MEDIUM</span>
+                <span class="badge pending">PENDING</span>
+              </div>
+              <div class="rc-type">🍱 Food Distribution</div>
+              <div class="rc-meta">📍 Ward 5, Cuttack, Odisha · 👨‍👩‍👧‍👦 Affected: 200 · ⏰ 6 hours ago</div>
+              <div class="rc-desc">Community kitchen ran out. Need food packets for 200 people, mostly elderly and children.</div>
+              <div class="rc-actions">
+                <button class="btn-sm btn-accept" onclick="acceptRequest('SS-1245')">✓ Accept</button>
+                <button class="btn-sm btn-assign">👤 Assign Volunteer</button>
+                <button class="btn-sm btn-view">View Details</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NGO Resources Tab -->
+        <div class="tab-content" id="ngo-tab-resources">
+          <div class="panel-header">
+            <h3>📦 Resource Inventory</h3>
+          </div>
+          <div class="resources-management">
+            <div class="resource-table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Resource</th><th>Available</th><th>Allocated</th><th>Total</th><th>Status</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>🍱 Food Packets</td>
+                    <td>1,800</td>
+                    <td>700</td>
+                    <td>2,500</td>
+                    <td><span class="badge medium">MODERATE</span></td>
+                    <td><button class="btn-sm btn-update">Update</button></td>
+                  </tr>
+                  <tr>
+                    <td>💧 Water (Litres)</td>
+                    <td>4,500</td>
+                    <td>5,500</td>
+                    <td>10,000</td>
+                    <td><span class="badge high">LOW</span></td>
+                    <td><button class="btn-sm btn-update">Update</button></td>
+                  </tr>
+                  <tr>
+                    <td>💊 Medicine Kits</td>
+                    <td>150</td>
+                    <td>350</td>
+                    <td>500</td>
+                    <td><span class="badge critical">CRITICAL</span></td>
+                    <td><button class="btn-sm btn-request-res">Request More</button></td>
+                  </tr>
+                  <tr>
+                    <td>🏠 Shelter Kits</td>
+                    <td>60</td>
+                    <td>40</td>
+                    <td>100</td>
+                    <td><span class="badge medium">MODERATE</span></td>
+                    <td><button class="btn-sm btn-update">Update</button></td>
+                  </tr>
+                  <tr>
+                    <td>👕 Clothing Bundles</td>
+                    <td>850</td>
+                    <td>150</td>
+                    <td>1,000</td>
+                    <td><span class="badge low">GOOD</span></td>
+                    <td><button class="btn-sm btn-update">Update</button></td>
+                  </tr>
+                  <tr>
+                    <td>🔦 Torches / Lamps</td>
+                    <td>220</td>
+                    <td>80</td>
+                    <td>300</td>
+                    <td><span class="badge medium">MODERATE</span></td>
+                    <td><button class="btn-sm btn-update">Update</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <button class="btn btn-primary" onclick="showAddResource()">+ Add Resource</button>
+          </div>
+        </div>
+
+        <!-- NGO Volunteers Tab -->
+        <div class="tab-content" id="ngo-tab-volunteers">
+          <div class="panel-header">
+            <h3>👥 Volunteer Management</h3>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Name</th><th>Skills</th><th>Location</th><th>Status</th><th>Assigned To</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Priya Sharma</td>
+                <td>First Aid, Cooking</td>
+                <td>Patna, Bihar</td>
+                <td><span class="badge low">ACTIVE</span></td>
+                <td>SS-1247</td>
+                <td><button class="btn-sm btn-view">View</button></td>
+              </tr>
+              <tr>
+                <td>Ravi Mehta</td>
+                <td>Driving, Logistics</td>
+                <td>Bhubaneswar, OD</td>
+                <td><span class="badge low">ACTIVE</span></td>
+                <td>SS-1246</td>
+                <td><button class="btn-sm btn-view">View</button></td>
+              </tr>
+              <tr>
+                <td>Sunita Das</td>
+                <td>Counseling, Languages</td>
+                <td>Cuttack, OD</td>
+                <td><span class="badge medium">STANDBY</span></td>
+                <td>Unassigned</td>
+                <td><button class="btn-sm btn-assign">Assign</button></td>
+              </tr>
+              <tr>
+                <td>Amit Kumar</td>
+                <td>Swimming, First Aid</td>
+                <td>Patna, Bihar</td>
+                <td><span class="badge low">ACTIVE</span></td>
+                <td>SS-1247</td>
+                <td><button class="btn-sm btn-view">View</button></td>
+              </tr>
+              <tr>
+                <td>Kavita Singh</td>
+                <td>Technical, Logistics</td>
+                <td>Mumbai, MH</td>
+                <td><span class="badge medium">STANDBY</span></td>
+                <td>Unassigned</td>
+                <td><button class="btn-sm btn-assign">Assign</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- NGO Camps Tab -->
+        <div class="tab-content" id="ngo-tab-camps">
+          <div class="panel-header">
+            <h3>⛺ Relief Camps & Operations</h3>
+          </div>
+          <div class="camps-grid">
+            <div class="camp-card active-camp">
+              <div class="camp-header">
+                <h4>⛺ Flood Relief Camp — Patna</h4>
+                <span class="badge low">ACTIVE</span>
+              </div>
+              <div class="camp-stats">
+                <div class="camp-stat"><span>👥</span><strong>450</strong><small>Occupants</small></div>
+                <div class="camp-stat"><span>🛏️</span><strong>200</strong><small>Beds Avail.</small></div>
+                <div class="camp-stat"><span>👨‍⚕️</span><strong>8</strong><small>Medical Staff</small></div>
+                <div class="camp-stat"><span>🍱</span><strong>3x/day</strong><small>Meals</small></div>
+              </div>
+              <p>📍 Govt School Ground, Sector 12 · Est. 48 hours ago</p>
+              <div class="camp-actions">
+                <button class="btn-sm btn-update">Update Status</button>
+                <button class="btn-sm btn-view">View Details</button>
+              </div>
+            </div>
+            <div class="camp-card active-camp">
+              <div class="camp-header">
+                <h4>⛺ Cyclone Relief Camp — Bhubaneswar</h4>
+                <span class="badge low">ACTIVE</span>
+              </div>
+              <div class="camp-stats">
+                <div class="camp-stat"><span>👥</span><strong>280</strong><small>Occupants</small></div>
+                <div class="camp-stat"><span>🛏️</span><strong>120</strong><small>Beds Avail.</small></div>
+                <div class="camp-stat"><span>👨‍⚕️</span><strong>5</strong><small>Medical Staff</small></div>
+                <div class="camp-stat"><span>🍱</span><strong>3x/day</strong><small>Meals</small></div>
+              </div>
+              <p>📍 Sports Complex, Ring Road · Est. 24 hours ago</p>
+              <div class="camp-actions">
+                <button class="btn-sm btn-update">Update Status</button>
+                <button class="btn-sm btn-view">View Details</button>
+              </div>
+            </div>
+            <div class="camp-card new-camp">
+              <div class="camp-header">
+                <h4>➕ Create New Camp</h4>
+              </div>
+              <p>Set up a new relief camp or distribution center</p>
+              <button class="btn btn-primary" onclick="showCreateCamp()">+ Create Camp</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- NGO Donations Tab -->
+        <div class="tab-content" id="ngo-tab-donations">
+          <div class="panel-header">
+            <h3>💰 Donations & Contributions</h3>
+          </div>
+          <div class="section-row">
+            <div class="dash-panel">
+              <div class="dp-header"><h4>Recent Donations</h4></div>
+              <table class="data-table">
+                <thead><tr><th>Donor</th><th>Amount</th><th>Purpose</th><th>Date</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td>Anonymous</td><td>₹5,000</td><td>Flood Relief</td><td>Today</td><td><span class="badge low">RECEIVED</span></td></tr>
+                  <tr><td>Rohan Verma</td><td>₹2,500</td><td>Medical Aid</td><td>Today</td><td><span class="badge low">RECEIVED</span></td></tr>
+                  <tr><td>Corporate CSR — TCS</td><td>₹2,00,000</td><td>General Fund</td><td>Yesterday</td><td><span class="badge low">RECEIVED</span></td></tr>
+                  <tr><td>Meera Gupta</td><td>₹1,000</td><td>Food Fund</td><td>2 days ago</td><td><span class="badge low">RECEIVED</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="dash-panel">
+              <div class="dp-header"><h4>Donation Summary</h4></div>
+              <div class="donation-summary">
+                <div class="ds-item"><span>Total Received</span><strong>₹42,35,000</strong></div>
+                <div class="ds-item"><span>This Month</span><strong>₹12,80,000</strong></div>
+                <div class="ds-item"><span>Utilized</span><strong>₹38,20,000</strong></div>
+                <div class="ds-item"><span>Available Balance</span><strong>₹4,15,000</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== GOVERNMENT PORTAL ========== -->
+    <section id="section-government" class="section">
+      <div class="portal-hero gov-hero">
+        <div class="portal-hero-content">
+          <div class="portal-hero-badge">Government Command Center</div>
+          <h1>Monitor. Alert. Coordinate. Protect.</h1>
+          <p>Centralized command and control for disaster response across all regions of India.</p>
+        </div>
+      </div>
+
+      <div class="portal-body">
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="showGovTab('overview')" id="gtab-overview">🗺️ Overview</button>
+          <button class="sub-tab" onclick="showGovTab('alerts')" id="gtab-alerts">🚨 Alerts</button>
+          <button class="sub-tab" onclick="showGovTab('ngos')" id="gtab-ngos">🤝 NGOs</button>
+          <button class="sub-tab" onclick="showGovTab('operations')" id="gtab-operations">⚙️ Operations</button>
+          <button class="sub-tab" onclick="showGovTab('analytics')" id="gtab-analytics">📈 Analytics</button>
+        </div>
+
+        <!-- Government Overview Tab -->
+        <div class="tab-content active" id="gov-tab-overview">
+          <div class="gov-kpi-grid">
+            <div class="kpi-card critical-kpi">
+              <div class="kpi-icon">🌍</div>
+              <div class="kpi-value">6</div>
+              <div class="kpi-label">Active Disasters</div>
+            </div>
+            <div class="kpi-card warning-kpi">
+              <div class="kpi-icon">🗺️</div>
+              <div class="kpi-value">14</div>
+              <div class="kpi-label">Affected Districts</div>
+            </div>
+            <div class="kpi-card critical-kpi">
+              <div class="kpi-icon">🆘</div>
+              <div class="kpi-value">247</div>
+              <div class="kpi-label">Emergency Requests</div>
+            </div>
+            <div class="kpi-card success-kpi">
+              <div class="kpi-icon">🤝</div>
+              <div class="kpi-value">89</div>
+              <div class="kpi-label">Verified NGOs</div>
+            </div>
+            <div class="kpi-card info-kpi">
+              <div class="kpi-icon">👥</div>
+              <div class="kpi-value">4.2L</div>
+              <div class="kpi-label">People Affected</div>
+            </div>
+            <div class="kpi-card success-kpi">
+              <div class="kpi-icon">⚙️</div>
+              <div class="kpi-value">38</div>
+              <div class="kpi-label">Relief Operations</div>
+            </div>
+          </div>
+
+          <div class="section-row">
+            <div class="dash-panel wide-panel">
+              <div class="dp-header"><h4>🌍 Active Disasters</h4></div>
+              <table class="data-table">
+                <thead><tr><th>Disaster</th><th>Location</th><th>Severity</th><th>Affected</th><th>NGOs Deployed</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td>🌪️ Cyclone Remal</td>
+                    <td>Odisha Coast</td>
+                    <td><span class="badge critical">CRITICAL</span></td>
+                    <td>1,20,000</td>
+                    <td>12</td>
+                    <td><span class="badge in-progress-badge">ACTIVE</span></td>
+                  </tr>
+                  <tr>
+                    <td>🌊 Flood</td>
+                    <td>Bihar, UP</td>
+                    <td><span class="badge critical">CRITICAL</span></td>
+                    <td>2,50,000</td>
+                    <td>28</td>
+                    <td><span class="badge in-progress-badge">ACTIVE</span></td>
+                  </tr>
+                  <tr>
+                    <td>🔥 Forest Fire</td>
+                    <td>Uttarakhand</td>
+                    <td><span class="badge high">HIGH</span></td>
+                    <td>15,000</td>
+                    <td>6</td>
+                    <td><span class="badge in-progress-badge">ACTIVE</span></td>
+                  </tr>
+                  <tr>
+                    <td>🏚️ Building Collapse</td>
+                    <td>Chennai, TN</td>
+                    <td><span class="badge critical">CRITICAL</span></td>
+                    <td>500</td>
+                    <td>4</td>
+                    <td><span class="badge in-progress-badge">ACTIVE</span></td>
+                  </tr>
+                  <tr>
+                    <td>🌡️ Heatwave</td>
+                    <td>Rajasthan</td>
+                    <td><span class="badge high">HIGH</span></td>
+                    <td>80,000</td>
+                    <td>8</td>
+                    <td><span class="badge in-progress-badge">ACTIVE</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Government Alerts Tab -->
+        <div class="tab-content" id="gov-tab-alerts">
+          <div class="panel-header">
+            <h3>🚨 Issue & Manage Disaster Alerts</h3>
+          </div>
+          <div class="content-grid two-col">
+            <div class="form-panel">
+              <h4>Create New Alert</h4>
+              <form class="relief-form" onsubmit="issueAlert(event)">
+                <div class="form-group">
+                  <label for="alert-title">Alert Title <span class="req">*</span></label>
+                  <input type="text" id="alert-title" placeholder="e.g. Flood Warning — Patna" required />
+                </div>
+                <div class="form-group">
+                  <label for="alert-type">Disaster Type <span class="req">*</span></label>
+                  <select id="alert-type" required>
+                    <option>🌊 Flood</option>
+                    <option>🌍 Earthquake</option>
+                    <option>🔥 Fire</option>
+                    <option>🌪️ Cyclone</option>
+                    <option>🌡️ Heatwave</option>
+                    <option>⛰️ Landslide</option>
+                    <option>🏚️ Building Collapse</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="alert-area">Affected Area / Districts <span class="req">*</span></label>
+                  <input type="text" id="alert-area" placeholder="Districts, states..." required />
+                </div>
+                <div class="form-group">
+                  <label for="alert-severity">Severity Level <span class="req">*</span></label>
+                  <div class="severity-selector">
+                    <label class="severity-opt critical-opt">
+                      <input type="radio" name="alert-sev" value="critical" required />
+                      <span>🔴 Critical</span>
+                    </label>
+                    <label class="severity-opt high-opt">
+                      <input type="radio" name="alert-sev" value="high" />
+                      <span>🟠 High</span>
+                    </label>
+                    <label class="severity-opt medium-opt">
+                      <input type="radio" name="alert-sev" value="medium" />
+                      <span>🟡 Medium</span>
+                    </label>
+                    <label class="severity-opt low-opt">
+                      <input type="radio" name="alert-sev" value="low" />
+                      <span>🟢 Low</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="alert-pop">Estimated Affected Population</label>
+                  <input type="number" id="alert-pop" placeholder="Number of people" />
+                </div>
+                <div class="form-group">
+                  <label for="alert-msg">Public Advisory Message <span class="req">*</span></label>
+                  <textarea id="alert-msg" rows="4" placeholder="Message to be broadcast to citizens in the affected area..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-emergency btn-full">📢 Issue Alert</button>
+              </form>
+            </div>
+            <div class="active-alerts-panel">
+              <h4>Active Alerts</h4>
+              <div class="alert-list">
+                <div class="alert-item critical-alert">
+                  <div class="alert-header">
+                    <span class="badge critical">CRITICAL</span>
+                    <span class="alert-time">2h ago</span>
+                  </div>
+                  <strong>🌪️ Cyclone Alert — Odisha Coast</strong>
+                  <p>Severe cyclone expected to make landfall. Evacuation ordered for coastal districts.</p>
+                  <div class="alert-footer">
+                    <span>Affected: Puri, Bhubaneswar, Konark</span>
+                    <button class="btn-sm btn-update">Update</button>
+                  </div>
+                </div>
+                <div class="alert-item critical-alert">
+                  <div class="alert-header">
+                    <span class="badge critical">CRITICAL</span>
+                    <span class="alert-time">4h ago</span>
+                  </div>
+                  <strong>🌊 Flood Alert — Bihar Plains</strong>
+                  <p>River Ganga breached embankments. Immediate evacuation of low-lying areas required.</p>
+                  <div class="alert-footer">
+                    <span>Affected: Patna, Muzaffarpur, Darbhanga</span>
+                    <button class="btn-sm btn-update">Update</button>
+                  </div>
+                </div>
+                <div class="alert-item high-alert">
+                  <div class="alert-header">
+                    <span class="badge high">HIGH</span>
+                    <span class="alert-time">8h ago</span>
+                  </div>
+                  <strong>🔥 Forest Fire — Uttarakhand</strong>
+                  <p>Forest fire spreading rapidly. Forest department and NDRF deployed.</p>
+                  <div class="alert-footer">
+                    <span>Affected: Nainital, Almora</span>
+                    <button class="btn-sm btn-update">Update</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Government NGOs Tab -->
+        <div class="tab-content" id="gov-tab-ngos">
+          <div class="panel-header">
+            <h3>🤝 NGO Verification & Monitoring</h3>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>NGO Name</th><th>Location</th><th>Speciality</th><th>Operations</th><th>Volunteers</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Seva Foundation</strong></td>
+                <td>Mumbai, MH</td>
+                <td>Flood, Food</td>
+                <td>14</td>
+                <td>284</td>
+                <td><span class="badge low">VERIFIED ✅</span></td>
+                <td><button class="btn-sm btn-view">View</button></td>
+              </tr>
+              <tr>
+                <td><strong>Red Cross India</strong></td>
+                <td>National</td>
+                <td>Medical, All</td>
+                <td>28</td>
+                <td>1,200</td>
+                <td><span class="badge low">VERIFIED ✅</span></td>
+                <td><button class="btn-sm btn-view">View</button></td>
+              </tr>
+              <tr>
+                <td><strong>Goonj</strong></td>
+                <td>Delhi</td>
+                <td>Clothing, Shelter</td>
+                <td>8</td>
+                <td>450</td>
+                <td><span class="badge low">VERIFIED ✅</span></td>
+                <td><button class="btn-sm btn-view">View</button></td>
+              </tr>
+              <tr>
+                <td><strong>Uday Foundation</strong></td>
+                <td>Kolkata, WB</td>
+                <td>Food, Education</td>
+                <td>5</td>
+                <td>120</td>
+                <td><span class="badge medium">PENDING ⏳</span></td>
+                <td><button class="btn-sm btn-accept">Verify</button></td>
+              </tr>
+              <tr>
+                <td><strong>Helping Hands</strong></td>
+                <td>Chennai, TN</td>
+                <td>Rescue, Medical</td>
+                <td>3</td>
+                <td>78</td>
+                <td><span class="badge medium">PENDING ⏳</span></td>
+                <td><button class="btn-sm btn-accept">Verify</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Government Operations Tab -->
+        <div class="tab-content" id="gov-tab-operations">
+          <div class="panel-header">
+            <h3>⚙️ Relief Operations Command</h3>
+          </div>
+          <div class="operations-grid">
+            <div class="op-card">
+              <div class="op-header">
+                <h4>Operation Flood Shield — Bihar</h4>
+                <span class="badge low">ACTIVE</span>
+              </div>
+              <div class="op-meta">
+                <span>📍 Bihar (Patna, Muzaffarpur)</span>
+                <span>⏰ Day 3</span>
+                <span>🤝 28 NGOs</span>
+              </div>
+              <div class="op-progress">
+                <div class="op-stat">Requests Resolved: <strong>1,240 / 1,890</strong></div>
+                <div class="progress-bar-track">
+                  <div class="progress-bar-fill" style="width:66%"></div>
+                </div>
+              </div>
+              <div class="op-resources">
+                <span>🍱 Food: Adequate</span>
+                <span>💧 Water: Low</span>
+                <span>💊 Medical: Adequate</span>
+              </div>
+            </div>
+            <div class="op-card">
+              <div class="op-header">
+                <h4>Operation Cyclone Shield — Odisha</h4>
+                <span class="badge critical">CRITICAL</span>
+              </div>
+              <div class="op-meta">
+                <span>📍 Odisha (Coastal Districts)</span>
+                <span>⏰ Day 1</span>
+                <span>🤝 12 NGOs</span>
+              </div>
+              <div class="op-progress">
+                <div class="op-stat">Requests Resolved: <strong>187 / 890</strong></div>
+                <div class="progress-bar-track">
+                  <div class="progress-bar-fill" style="width:21%"></div>
+                </div>
+              </div>
+              <div class="op-resources">
+                <span>🍱 Food: Low</span>
+                <span>💧 Water: Critical</span>
+                <span>💊 Medical: Low</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Government Analytics Tab -->
+        <div class="tab-content" id="gov-tab-analytics">
+          <div class="panel-header">
+            <h3>📈 Disaster Analytics & Reports</h3>
+          </div>
+          <div class="analytics-grid">
+            <div class="analytics-card">
+              <h4>Disaster Frequency (2024)</h4>
+              <div class="bar-chart">
+                <div class="bc-item"><span>Flood</span><div class="bc-bar" style="width:85%"><span>85</span></div></div>
+                <div class="bc-item"><span>Cyclone</span><div class="bc-bar" style="width:45%"><span>45</span></div></div>
+                <div class="bc-item"><span>Fire</span><div class="bc-bar" style="width:60%"><span>60</span></div></div>
+                <div class="bc-item"><span>Earthquake</span><div class="bc-bar" style="width:20%"><span>20</span></div></div>
+                <div class="bc-item"><span>Heatwave</span><div class="bc-bar" style="width:70%"><span>70</span></div></div>
+                <div class="bc-item"><span>Landslide</span><div class="bc-bar" style="width:35%"><span>35</span></div></div>
+              </div>
+            </div>
+            <div class="analytics-card">
+              <h4>Request Resolution Rate</h4>
+              <div class="donut-chart">
+                <svg viewBox="0 0 120 120" class="donut-svg">
+                  <circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="18"/>
+                  <circle cx="60" cy="60" r="45" fill="none" stroke="#14b8a6" stroke-width="18" stroke-dasharray="210 73" stroke-dashoffset="25" transform="rotate(-90 60 60)"/>
+                  <circle cx="60" cy="60" r="45" fill="none" stroke="#06b6d4" stroke-width="18" stroke-dasharray="40 243" stroke-dashoffset="-185" transform="rotate(-90 60 60)"/>
+                  <circle cx="60" cy="60" r="45" fill="none" stroke="#ef4444" stroke-width="18" stroke-dasharray="33 250" stroke-dashoffset="-225" transform="rotate(-90 60 60)"/>
+                  <text x="60" y="56" text-anchor="middle" fill="white" font-size="14" font-weight="700">74%</text>
+                  <text x="60" y="70" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="7">Resolved</text>
+                </svg>
+                <div class="donut-legend">
+                  <div class="dl-item"><span style="background:#14b8a6"></span>Resolved (74%)</div>
+                  <div class="dl-item"><span style="background:#06b6d4"></span>In Progress (14%)</div>
+                  <div class="dl-item"><span style="background:#ef4444"></span>Pending (12%)</div>
+                </div>
+              </div>
+            </div>
+            <div class="analytics-card">
+              <h4>Top States by Requests</h4>
+              <div class="bar-chart">
+                <div class="bc-item"><span>Bihar</span><div class="bc-bar" style="width:90%"><span>890</span></div></div>
+                <div class="bc-item"><span>Odisha</span><div class="bc-bar" style="width:70%"><span>680</span></div></div>
+                <div class="bc-item"><span>Maharashtra</span><div class="bc-bar" style="width:55%"><span>520</span></div></div>
+                <div class="bc-item"><span>Uttarakhand</span><div class="bc-bar" style="width:40%"><span>380</span></div></div>
+                <div class="bc-item"><span>Tamil Nadu</span><div class="bc-bar" style="width:35%"><span>320</span></div></div>
+              </div>
+            </div>
+            <div class="analytics-card">
+              <h4>Resource Utilization</h4>
+              <div class="res-utilization">
+                <div class="ru-item">
+                  <span>🍱 Food</span>
+                  <div class="ru-bar"><div class="ru-fill" style="width:72%"></div></div>
+                  <span>72%</span>
+                </div>
+                <div class="ru-item">
+                  <span>💧 Water</span>
+                  <div class="ru-bar"><div class="ru-fill warning-fill" style="width:88%"></div></div>
+                  <span>88%</span>
+                </div>
+                <div class="ru-item">
+                  <span>💊 Medical</span>
+                  <div class="ru-bar"><div class="ru-fill critical-fill" style="width:95%"></div></div>
+                  <span>95%</span>
+                </div>
+                <div class="ru-item">
+                  <span>🏠 Shelter</span>
+                  <div class="ru-bar"><div class="ru-fill" style="width:60%"></div></div>
+                  <span>60%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== HELP GUIDE ========== -->
+    <section id="section-helpguide" class="section">
+      <div class="portal-hero guide-hero">
+        <div class="portal-hero-content">
+          <div class="portal-hero-badge">Emergency Help Guide</div>
+          <h1>Know What To Do. Stay Safe.</h1>
+          <p>Practical, step-by-step emergency guides for every major disaster. No login required.</p>
+        </div>
+      </div>
+
+      <div class="portal-body">
+        <!-- Emergency Contacts Banner -->
+        <div class="sos-banner">
+          <div class="sos-title">📞 National Emergency Numbers</div>
+          <div class="sos-numbers">
+            <a href="tel:112" class="sos-num">112 <small>National Emergency</small></a>
+            <a href="tel:100" class="sos-num">100 <small>Police</small></a>
+            <a href="tel:101" class="sos-num">101 <small>Fire</small></a>
+            <a href="tel:108" class="sos-num">108 <small>Ambulance</small></a>
+            <a href="tel:1090" class="sos-num">1090 <small>Women Helpline</small></a>
+            <a href="tel:1800-180-1253" class="sos-num">1800-180-1253 <small>NDMA</small></a>
+          </div>
+        </div>
+
+        <!-- Disaster Selector -->
+        <div class="disaster-selector">
+          <button class="dis-btn active" onclick="showDisasterGuide('flood', this)">🌊 Floods</button>
+          <button class="dis-btn" onclick="showDisasterGuide('earthquake', this)">🌍 Earthquake</button>
+          <button class="dis-btn" onclick="showDisasterGuide('fire', this)">🔥 Fire</button>
+          <button class="dis-btn" onclick="showDisasterGuide('cyclone', this)">🌪️ Cyclone</button>
+          <button class="dis-btn" onclick="showDisasterGuide('heatwave', this)">🌡️ Heatwave</button>
+          <button class="dis-btn" onclick="showDisasterGuide('collapse', this)">🏚️ Collapse</button>
+        </div>
+
+        <!-- Disaster Guides -->
+        <div class="disaster-guides">
+
+          <div class="disaster-guide active" id="guide-flood">
+            <div class="guide-title-bar">
+              <div class="guide-icon-big">🌊</div>
+              <div>
+                <h2>Flood Emergency Guide</h2>
+                <p>Floods are one of India's most common disasters. Preparedness saves lives.</p>
+              </div>
+            </div>
+            <div class="guide-phases">
+              <div class="guide-phase before">
+                <div class="phase-header"><span class="phase-badge before-badge">BEFORE</span><h3>Before a Flood</h3></div>
+                <ul class="guide-list">
+                  <li>📻 Monitor weather forecasts and official alerts via radio/TV</li>
+                  <li>📦 Prepare an emergency kit: water, food (3 days), medicines, documents</li>
+                  <li>📋 Know your evacuation route and nearest relief camp locations</li>
+                  <li>🔌 Disconnect electrical appliances before leaving home</li>
+                  <li>🏦 Store important documents in waterproof bags</li>
+                  <li>📞 Share your emergency contact info with neighbors</li>
+                  <li>🚗 Move vehicles and valuables to higher ground</li>
+                  <li>💧 Store extra clean drinking water (at least 15L per person)</li>
+                </ul>
+              </div>
+              <div class="guide-phase during">
+                <div class="phase-header"><span class="phase-badge during-badge">DURING</span><h3>During a Flood</h3></div>
+                <ul class="guide-list">
+                  <li>🏃 Evacuate immediately if authorities issue evacuation orders</li>
+                  <li>⛔ Do NOT walk, swim, or drive through flood waters</li>
+                  <li>⚡ Stay away from power lines and electrical equipment</li>
+                  <li>📱 Call 112 or report on Sahay-Setu if trapped</li>
+                  <li>🏠 Go to upper floors — do NOT use elevators</li>
+                  <li>🚫 Avoid bridges over fast-moving water</li>
+                  <li>📻 Follow ONLY official instructions</li>
+                  <li>🤝 Help elderly and disabled neighbors if safe to do so</li>
+                </ul>
+              </div>
+              <div class="guide-phase after">
+                <div class="phase-header"><span class="phase-badge after-badge">AFTER</span><h3>After a Flood</h3></div>
+                <ul class="guide-list">
+                  <li>🏠 Return home only when authorities confirm it's safe</li>
+                  <li>🔍 Check for structural damage before entering buildings</li>
+                  <li>💧 Do NOT use tap water until declared safe — drink bottled water</li>
+                  <li>⚡ Do not turn on electricity if your home was flooded</li>
+                  <li>🦟 Use mosquito repellent — flood aftermath brings disease risk</li>
+                  <li>📸 Document damage for insurance/relief claims</li>
+                  <li>🧹 Clean and disinfect everything that was in floodwater</li>
+                  <li>📞 Report remaining needs via Sahay-Setu or 112</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="disaster-guide" id="guide-earthquake">
+            <div class="guide-title-bar">
+              <div class="guide-icon-big">🌍</div>
+              <div>
+                <h2>Earthquake Emergency Guide</h2>
+                <p>Earthquakes strike without warning. Knowing what to do can save your life.</p>
+              </div>
+            </div>
+            <div class="guide-phases">
+              <div class="guide-phase before">
+                <div class="phase-header"><span class="phase-badge before-badge">BEFORE</span><h3>Before an Earthquake</h3></div>
+                <ul class="guide-list">
+                  <li>🔩 Secure heavy furniture and shelves to walls</li>
+                  <li>📦 Prepare an emergency kit with 3-day supplies</li>
+                  <li>🚪 Know the safe spots in each room (under sturdy table, against inner wall)</li>
+                  <li>🔥 Know how to turn off gas, water, and electricity</li>
+                  <li>📋 Practice "Drop, Cover, Hold On" with family</li>
+                  <li>🏠 Check your building's seismic safety rating</li>
+                </ul>
+              </div>
+              <div class="guide-phase during">
+                <div class="phase-header"><span class="phase-badge during-badge">DURING</span><h3>During an Earthquake</h3></div>
+                <ul class="guide-list">
+                  <li>⬇️ DROP — get down on hands and knees immediately</li>
+                  <li>🛡️ COVER — get under a sturdy table or cover head/neck with arms</li>
+                  <li>✊ HOLD ON — hold until shaking stops</li>
+                  <li>🚫 Do NOT run outside during shaking</li>
+                  <li>🪟 Stay away from windows, glass, and heavy items</li>
+                  <li>🚗 If in a car, pull over away from buildings and overpasses</li>
+                  <li>🏖️ If on a beach, immediately move inland (tsunami risk)</li>
+                </ul>
+              </div>
+              <div class="guide-phase after">
+                <div class="phase-header"><span class="phase-badge after-badge">AFTER</span><h3>After an Earthquake</h3></div>
+                <ul class="guide-list">
+                  <li>🔍 Check for injuries — provide first aid if trained</li>
+                  <li>🔥 Check for fires and gas leaks — shut off gas if smell is detected</li>
+                  <li>📱 Use text messages to conserve phone battery/network</li>
+                  <li>🏚️ Inspect your building for cracks before entering</li>
+                  <li>📻 Monitor emergency broadcasts for aftershock warnings</li>
+                  <li>⛔ Stay away from damaged buildings</li>
+                  <li>📞 Report trapped persons on Sahay-Setu or 112</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="disaster-guide" id="guide-fire">
+            <div class="guide-title-bar">
+              <div class="guide-icon-big">🔥</div>
+              <div>
+                <h2>Fire Emergency Guide</h2>
+                <p>In a fire, every second counts. Act fast and stay calm.</p>
+              </div>
+            </div>
+            <div class="guide-phases">
+              <div class="guide-phase before">
+                <div class="phase-header"><span class="phase-badge before-badge">BEFORE</span><h3>Fire Prevention & Preparation</h3></div>
+                <ul class="guide-list">
+                  <li>🔔 Install smoke alarms on every floor — test monthly</li>
+                  <li>🧯 Keep a fire extinguisher in kitchen and near exits</li>
+                  <li>🚪 Plan and practice two escape routes from every room</li>
+                  <li>📍 Designate a meeting point outside the building</li>
+                  <li>⚡ Don't overload electrical sockets</li>
+                  <li>🕯️ Never leave candles or cooking unattended</li>
+                </ul>
+              </div>
+              <div class="guide-phase during">
+                <div class="phase-header"><span class="phase-badge during-badge">DURING</span><h3>During a Fire</h3></div>
+                <ul class="guide-list">
+                  <li>📢 Raise the alarm immediately — shout "FIRE!" and activate alarm</li>
+                  <li>📞 Call 101 (Fire Brigade) immediately</li>
+                  <li>🏃 Evacuate immediately — do NOT stop to collect belongings</li>
+                  <li>🚪 Feel doors before opening — if hot, do NOT open</li>
+                  <li>🌫️ Crawl low under smoke — air is cleaner near the floor</li>
+                  <li>🚫 Never use lifts/elevators during a fire</li>
+                  <li>🛑 If trapped, signal from window with cloth/light</li>
+                </ul>
+              </div>
+              <div class="guide-phase after">
+                <div class="phase-header"><span class="phase-badge after-badge">AFTER</span><h3>After a Fire</h3></div>
+                <ul class="guide-list">
+                  <li>🏠 Do NOT re-enter the building until fire service clears it</li>
+                  <li>🩺 Seek medical attention for burns or smoke inhalation</li>
+                  <li>📞 Contact insurance company and document damage</li>
+                  <li>🏠 Report need for temporary shelter via Sahay-Setu</li>
+                  <li>💧 Watch for hot spots that may reignite</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="disaster-guide" id="guide-cyclone">
+            <div class="guide-title-bar">
+              <div class="guide-icon-big">🌪️</div>
+              <div>
+                <h2>Cyclone Emergency Guide</h2>
+                <p>Cyclones can be predicted. Use warning time to prepare and evacuate.</p>
+              </div>
+            </div>
+            <div class="guide-phases">
+              <div class="guide-phase before">
+                <div class="phase-header"><span class="phase-badge before-badge">BEFORE</span><h3>Before a Cyclone</h3></div>
+                <ul class="guide-list">
+                  <li>📻 Monitor weather updates and cyclone track forecasts</li>
+                  <li>🏠 Reinforce windows and doors with boards or storm shutters</li>
+                  <li>🌳 Trim branches that could fall on your home</li>
+                  <li>📦 Stock 3–7 days of food, water, and medicines</li>
+                  <li>🔦 Keep torches, candles, and battery-powered radios ready</li>
+                  <li>🏥 Know the location of nearest cyclone shelter</li>
+                  <li>🚗 Move inland if you live in a coastal low-lying area</li>
+                </ul>
+              </div>
+              <div class="guide-phase during">
+                <div class="phase-header"><span class="phase-badge during-badge">DURING</span><h3>During a Cyclone</h3></div>
+                <ul class="guide-list">
+                  <li>🏠 Stay indoors and away from windows</li>
+                  <li>📻 Monitor official broadcasts — don't go out during the "eye"</li>
+                  <li>🛑 The calm "eye" phase is temporary — storm will resume</li>
+                  <li>⚡ Unplug electrical appliances</li>
+                  <li>🏛️ Move to the strongest room in the house (inner rooms)</li>
+                  <li>🌊 Avoid flooded roads and streams</li>
+                </ul>
+              </div>
+              <div class="guide-phase after">
+                <div class="phase-header"><span class="phase-badge after-badge">AFTER</span><h3>After a Cyclone</h3></div>
+                <ul class="guide-list">
+                  <li>⚠️ Wait for official all-clear before going outside</li>
+                  <li>⚡ Avoid downed power lines</li>
+                  <li>💧 Use only safe/bottled water</li>
+                  <li>🏚️ Check structural damage before entering buildings</li>
+                  <li>📸 Document damage for relief applications</li>
+                  <li>📞 Report needs via Sahay-Setu or helpline</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="disaster-guide" id="guide-heatwave">
+            <div class="guide-title-bar">
+              <div class="guide-icon-big">🌡️</div>
+              <div>
+                <h2>Heatwave Emergency Guide</h2>
+                <p>Extreme heat is a silent killer. Prevention and hydration are key.</p>
+              </div>
+            </div>
+            <div class="guide-phases">
+              <div class="guide-phase before">
+                <div class="phase-header"><span class="phase-badge before-badge">BEFORE</span><h3>Heatwave Preparation</h3></div>
+                <ul class="guide-list">
+                  <li>🌡️ Track heat index, not just temperature</li>
+                  <li>💧 Stock adequate water supplies</li>
+                  <li>🏠 Install fans, cooling equipment, or identify nearby cool spaces</li>
+                  <li>👕 Prepare light, loose-fitting, light-colored clothing</li>
+                  <li>🧴 Stock sunscreen (SPF 30+) and oral rehydration salts (ORS)</li>
+                </ul>
+              </div>
+              <div class="guide-phase during">
+                <div class="phase-header"><span class="phase-badge during-badge">DURING</span><h3>During a Heatwave</h3></div>
+                <ul class="guide-list">
+                  <li>💧 Drink 2–3 litres of water/day even if not thirsty</li>
+                  <li>⏰ Avoid going outdoors between 11am–4pm</li>
+                  <li>👕 Wear light, loose, breathable clothing</li>
+                  <li>🌿 Stay in shaded or air-conditioned areas</li>
+                  <li>🍜 Eat small, frequent meals — avoid heavy protein</li>
+                  <li>🚨 Know signs of heat stroke: no sweating, confusion, high temp — Call 108</li>
+                  <li>👴 Check on elderly, children, and outdoor workers regularly</li>
+                </ul>
+              </div>
+              <div class="guide-phase after">
+                <div class="phase-header"><span class="phase-badge after-badge">AFTER</span><h3>After a Heatwave</h3></div>
+                <ul class="guide-list">
+                  <li>🩺 Seek medical help for heat-related illness symptoms</li>
+                  <li>💧 Continue hydrating even after the heatwave passes</li>
+                  <li>📞 Report heat-related casualties to authorities</li>
+                  <li>🏥 ORS packets available at relief points — collect if needed</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="disaster-guide" id="guide-collapse">
+            <div class="guide-title-bar">
+              <div class="guide-icon-big">🏚️</div>
+              <div>
+                <h2>Building Collapse Guide</h2>
+                <p>Collapse situations require immediate and calm action.</p>
+              </div>
+            </div>
+            <div class="guide-phases">
+              <div class="guide-phase before">
+                <div class="phase-header"><span class="phase-badge before-badge">BEFORE</span><h3>Building Safety Awareness</h3></div>
+                <ul class="guide-list">
+                  <li>🔍 Know the structural health of your building</li>
+                  <li>⚠️ Watch for cracks, unusual noises, or tilting</li>
+                  <li>🚪 Know all exit routes including emergency stairs</li>
+                  <li>📱 Save NDRF and local rescue team numbers</li>
+                  <li>📦 Keep emergency kit accessible</li>
+                </ul>
+              </div>
+              <div class="guide-phase during">
+                <div class="phase-header"><span class="phase-badge during-badge">DURING</span><h3>During / After Collapse</h3></div>
+                <ul class="guide-list">
+                  <li>📢 Call 112 immediately if trapped or witnessing collapse</li>
+                  <li>🛑 Do not enter a collapsed or unstable structure</li>
+                  <li>🔦 If trapped: conserve energy, tap pipes/walls to signal rescuers</li>
+                  <li>🚫 Do NOT use lighters or matches — gas leaks may be present</li>
+                  <li>🗣️ Shout only when you hear rescuers — conserve energy otherwise</li>
+                  <li>💨 Cover nose/mouth with cloth to filter dust</li>
+                </ul>
+              </div>
+              <div class="guide-phase after">
+                <div class="phase-header"><span class="phase-badge after-badge">AFTER</span><h3>After a Collapse</h3></div>
+                <ul class="guide-list">
+                  <li>🏃 Move away from the collapse zone — secondary collapse risk</li>
+                  <li>🩺 Provide first aid to injured if trained</li>
+                  <li>📞 Report the incident via Sahay-Setu or 112</li>
+                  <li>🚫 Do NOT move seriously injured persons unless in immediate danger</li>
+                  <li>📸 Document and report for NDRF investigation</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- end disaster-guides -->
+      </div>
+    </section>
+
+    <!-- ========== ABOUT ========== -->
+    <section id="section-about" class="section">
+      <div class="portal-hero about-hero">
+        <div class="portal-hero-content">
+          <div class="portal-hero-badge">About Sahay-Setu</div>
+          <h1>Bridging Help to Those Who Need It Most</h1>
+          <p class="hero-mantra">
+            <span class="mantra-item">Right Help</span>
+            <span class="mantra-sep">→</span>
+            <span class="mantra-item">Right Person</span>
+            <span class="mantra-sep">→</span>
+            <span class="mantra-item">Right Place</span>
+            <span class="mantra-sep">→</span>
+            <span class="mantra-item">Right Time</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="portal-body">
+        <div class="about-content">
+
+          <!-- What is Sahay-Setu -->
+          <div class="about-section">
+            <div class="about-icon">🌉</div>
+            <div class="about-text">
+              <h2>What is Sahay-Setu?</h2>
+              <p><strong>Sahay-Setu</strong> (meaning "Help-Bridge" in Sanskrit/Hindi) is a modern, unified disaster management and relief coordination platform designed for India. It bridges the gap between those who need help during disasters and those who can provide it — Citizens, NGOs, and Government authorities — on a single digital platform.</p>
+              <p>The name reflects our core mission: to be the bridge ("Setu") that connects vulnerable communities with the right help ("Sahay") at the right time.</p>
+            </div>
+          </div>
+
+          <!-- Problem -->
+          <div class="about-section reverse">
+            <div class="about-icon">⚠️</div>
+            <div class="about-text">
+              <h2>The Problem We Address</h2>
+              <p>India faces over 800 disasters annually — floods, cyclones, earthquakes, fires, heatwaves — affecting millions of people. Despite the heroic efforts of NGOs, government agencies, and volunteers, the response is often fragmented:</p>
+              <ul class="about-list">
+                <li>Citizens don't know where to report or how to track relief</li>
+                <li>NGOs duplicate efforts in one area while others go unserved</li>
+                <li>Government lacks real-time visibility into ground conditions</li>
+                <li>Resources (food, water, medicine) are misallocated</li>
+                <li>Volunteers are uncoordinated and untracked</li>
+                <li>Donations don't always reach the right cause</li>
+              </ul>
+              <p>The result: <strong>help exists, but doesn't reach the right people, at the right place, at the right time.</strong></p>
+            </div>
+          </div>
+
+          <!-- Vision -->
+          <div class="about-section">
+            <div class="about-icon">🎯</div>
+            <div class="about-text">
+              <h2>Our Vision</h2>
+              <p>A future where <strong>no disaster victim is left without help</strong> due to coordination failure. Sahay-Setu envisions a connected ecosystem where every citizen can report distress and receive timely assistance, every NGO operates with maximum efficiency, and every government authority has the data they need to make life-saving decisions.</p>
+              <div class="vision-pillars">
+                <div class="vp-card"><div class="vp-icon">⚡</div><h4>Speed</h4><p>Zero delay between need and response</p></div>
+                <div class="vp-card"><div class="vp-icon">🎯</div><h4>Precision</h4><p>Right resources to the right location</p></div>
+                <div class="vp-card"><div class="vp-icon">🔍</div><h4>Transparency</h4><p>Every donation and action is traceable</p></div>
+                <div class="vp-card"><div class="vp-icon">🤝</div><h4>Unity</h4><p>Citizens, NGOs, and Government as one team</p></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- How It Works -->
+          <div class="about-section reverse">
+            <div class="about-icon">⚙️</div>
+            <div class="about-text">
+              <h2>How the Platform Works</h2>
+              <div class="how-it-works-flow">
+                <div class="hiw-step">
+                  <div class="hiw-num">1</div>
+                  <div class="hiw-content">
+                    <h4>Citizen Reports</h4>
+                    <p>A citizen reports an emergency with location, type, and severity through the Citizen Portal or mobile app.</p>
+                  </div>
+                </div>
+                <div class="hiw-step">
+                  <div class="hiw-num">2</div>
+                  <div class="hiw-content">
+                    <h4>Verification & Routing</h4>
+                    <p>The system verifies the report and routes it to relevant NGOs and Government authorities in the area.</p>
+                  </div>
+                </div>
+                <div class="hiw-step">
+                  <div class="hiw-num">3</div>
+                  <div class="hiw-content">
+                    <h4>NGO Coordination</h4>
+                    <p>Verified NGOs accept requests, assign volunteers, and deploy resources from their managed inventory.</p>
+                  </div>
+                </div>
+                <div class="hiw-step">
+                  <div class="hiw-num">4</div>
+                  <div class="hiw-content">
+                    <h4>Government Oversight</h4>
+                    <p>Government authorities monitor all operations, issue alerts, allocate resources, and verify NGOs in real time.</p>
+                  </div>
+                </div>
+                <div class="hiw-step">
+                  <div class="hiw-num">5</div>
+                  <div class="hiw-content">
+                    <h4>Resolution & Feedback</h4>
+                    <p>Once help is delivered, the request is marked resolved. Citizens can rate the response for continuous improvement.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Team -->
+          <div class="about-section">
+            <div class="about-icon">👥</div>
+            <div class="about-text">
+              <h2>Project & Team</h2>
+              <p>Sahay-Setu was conceptualized and developed as a civic-tech initiative to solve real coordination gaps in India's disaster response ecosystem. The platform is built with a focus on reliability, accessibility, and real-world deployment readiness.</p>
+              <div class="team-grid">
+                <div class="team-card">
+                  <div class="team-avatar">🧑‍💻</div>
+                  <h4>Platform Architecture</h4>
+                  <p>Full-stack disaster coordination system with real-time request management</p>
+                </div>
+                <div class="team-card">
+                  <div class="team-avatar">📊</div>
+                  <h4>Data & Analytics</h4>
+                  <p>Resource tracking, request analytics, and NGO performance monitoring</p>
+                </div>
+                <div class="team-card">
+                  <div class="team-avatar">🎨</div>
+                  <h4>UX & Accessibility</h4>
+                  <p>Designed for emergency use — clear, fast, and mobile-first</p>
+                </div>
+                <div class="team-card">
+                  <div class="team-avatar">🌐</div>
+                  <h4>Field Integration</h4>
+                  <p>Built for NGOs and government teams operating on the ground</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="about-impact">
+            <h2>Platform Impact</h2>
+            <div class="impact-stats">
+              <div class="is-item">
+                <div class="is-num">8,923</div>
+                <div class="is-label">Requests Resolved</div>
+              </div>
+              <div class="is-item">
+                <div class="is-num">89</div>
+                <div class="is-label">Verified NGOs</div>
+              </div>
+              <div class="is-item">
+                <div class="is-num">12,400</div>
+                <div class="is-label">Active Volunteers</div>
+              </div>
+              <div class="is-item">
+                <div class="is-num">4.2L+</div>
+                <div class="is-label">People Assisted</div>
+              </div>
+              <div class="is-item">
+                <div class="is-num">₹2.4Cr</div>
+                <div class="is-label">Donations Raised</div>
+              </div>
+              <div class="is-item">
+                <div class="is-num">28</div>
+                <div class="is-label">States Covered</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== TOAST NOTIFICATION ===== -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ===== MODAL ===== -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+    <div class="modal" id="modal" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="brand-icon small">
+          <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
+            <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" fill="url(#hexGrad2)"/>
+            <path d="M14 6L10 14H14L11 22L20 12H15L18 6H14Z" fill="white"/>
+            <defs>
+              <linearGradient id="hexGrad2" x1="2" y1="2" x2="26" y2="26">
+                <stop stop-color="#14b8a6"/>
+                <stop offset="1" stop-color="#06b6d4"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <div class="footer-name">Sahay-Setu</div>
+          <div class="footer-tagline">Right Help · Right Person · Right Place · Right Time</div>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="#" onclick="showSection('citizen')">Citizen Portal</a>
+        <a href="#" onclick="showSection('ngo')">NGO Portal</a>
+        <a href="#" onclick="showSection('government')">Government</a>
+        <a href="#" onclick="showSection('helpguide')">Help Guide</a>
+        <a href="#" onclick="showSection('about')">About</a>
+      </div>
+      <div class="footer-emergency">
+        <strong>Emergency?</strong>
+        <a href="tel:112">📞 Call 112</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024 Sahay-Setu. Built for India's resilience.</span>
+      <span>🇮🇳 Made with dedication for disaster relief</span>
+    </div>
+  </footer>
+  <script src="/src/script.js"></script>
+  <script type="module" src="/src/auth.js"></script>
+</body>
+</html>
