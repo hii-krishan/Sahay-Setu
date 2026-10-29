@@ -1,12 +1,14 @@
 {
   "name": "sahay-setu",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "server/index.js",
   "scripts": {
     "dev": "node server/dev.js",
     "build": "vite build",
+    "check": "node --check server/index.js && node --check server/dev.js",
     "preview": "vite preview",
     "server": "node server/index.js",
+    "start": "node server/index.js",
     "server:watch": "nodemon server/index.js"
   },
   "keywords": [],

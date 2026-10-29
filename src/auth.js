@@ -2,6 +2,14 @@
 import { supabase } from './supabase.js';
 window.supabase = supabase;
 
+const DEMO_ACCOUNTS = {
+  'krishan-citizen@sahay-setu.com': { password: 'Krishan123@', name: 'Krishan Citizen', role: 'citizen' },
+  'krishan-ngo@sahay-setu.com': { password: 'Krishan123@', name: 'Krishan NGO', role: 'ngo' },
+  'krishan-gov@sahay-setu.com': { password: 'Krishan123@', name: 'Krishan Government', role: 'government' },
+  'krishan-gov@ssahay-setu.com': { password: 'Krishan123@', name: 'Krishan Government', role: 'government' }
+};
+window.DEMO_ACCOUNTS = DEMO_ACCOUNTS;
+
 document.addEventListener('DOMContentLoaded', async () => {
   // ─── DOM Elements ───
   const authNav = document.getElementById('authNav');
@@ -67,6 +75,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  if (!supabase) {
+    if (authMessage) {
+      authMessage.textContent = 'Demo access is available. Configure Supabase for production accounts.';
+      authMessage.classList.add('show', 'error');
+    }
+    console.warn('Supabase frontend configuration is missing; demo accounts remain available.');
+  }
+
   // ─── Generate auth particles ───
   function spawnAuthParticles() {
     if (!authParticlesEl) return;
@@ -87,20 +103,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   spawnAuthParticles();
 
   // ─── Modal Open / Close ───
+  let lastFocusedElement = null;
   function openModal(tab = 'login') {
+    lastFocusedElement = document.activeElement;
+    overlay.inert = false;
     overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
     switchTab(tab);
+    (tab === 'login' ? loginEmail : signupName).focus();
   }
 
   function closeModal() {
     overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.inert = true;
     document.body.style.overflow = '';
     hideMessage();
     // Reset forms
     loginForm.reset();
     signupForm.reset();
     resetPwStrength();
+    if (lastFocusedElement?.focus) lastFocusedElement.focus();
   }
 
   loginBtn.addEventListener('click', () => openModal('login'));
@@ -113,6 +137,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && overlay.classList.contains('open')) {
       closeModal();
+      return;
+    }
+    if (e.key === 'Tab' && overlay.classList.contains('open')) {
+      const focusable = [...overlay.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+        .filter(element => !element.hidden && element.getClientRects().length);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     }
   });
 
@@ -232,13 +266,27 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    const demoAccount = DEMO_ACCOUNTS[email.toLowerCase()];
+    if (demoAccount && demoAccount.password === password) {
+      const demoUser = { email, user_metadata: { full_name: demoAccount.name }, app_metadata: { role: demoAccount.role }, demo: true };
+      localStorage.setItem('sahaySetuDemoSession', JSON.stringify(demoUser));
+      if (rememberMe.checked) localStorage.setItem('sahaySetuRememberedEmail', email);
+      showMessage(`Demo ${demoAccount.role} access enabled.`, 'success');
+      setTimeout(() => { closeModal(); renderAuthState(demoUser); }, 500);
+      return;
+    }
+
     setLoading(loginSubmitBtn, true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-
+    let error;
+    try {
+      if (!supabase) throw new Error('Production authentication is not configured.');
+      ({ error } = await supabase.auth.signInWithPassword({ email, password }));
+    } catch (_error) {
+      showMessage('Sign-in is temporarily unavailable. Check your connection and try again.', 'error');
+      setLoading(loginSubmitBtn, false);
+      return;
+    }
     setLoading(loginSubmitBtn, false);
 
     if (error) {
@@ -262,6 +310,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ─── Password Reset ───
   forgotPassword.addEventListener('click', async (e) => {
     e.preventDefault();
+    if (forgotPassword.getAttribute('aria-disabled') === 'true') return;
     hideMessage();
 
     const email = loginEmail.value.trim();
@@ -272,9 +321,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     forgotPassword.setAttribute('aria-disabled', 'true');
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}${window.location.pathname}`
-    });
+    let error;
+    try {
+      if (!supabase) throw new Error('Production authentication is not configured.');
+      ({ error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}${window.location.pathname}`
+      }));
+    } catch (_error) {
+      showMessage('Password reset is temporarily unavailable. Check your connection and try again.', 'error');
+      forgotPassword.removeAttribute('aria-disabled');
+      return;
+    }
     forgotPassword.removeAttribute('aria-disabled');
 
     if (error) {
@@ -306,17 +363,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     setLoading(signupSubmitBtn, true);
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: name
-        },
-        emailRedirectTo: `${window.location.origin}${window.location.pathname}`
-      }
-    });
-
+    let error;
+    try {
+      if (!supabase) throw new Error('Production authentication is not configured.');
+      ({ error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: name }, emailRedirectTo: `${window.location.origin}${window.location.pathname}` }
+      }));
+    } catch (_error) {
+      showMessage('Account creation is temporarily unavailable. Check your connection and try again.', 'error');
+      setLoading(signupSubmitBtn, false);
+      return;
+    }
     setLoading(signupSubmitBtn, false);
 
     if (error) {
@@ -332,7 +391,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     loginEmail.value = rememberedEmail;
     rememberMe.checked = true;
   }
- 
   // ─── Google Sign-In ───
   googleSignIn.addEventListener('click', async () => {
     hideMessage();
@@ -340,6 +398,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     googleSignIn.setAttribute('aria-busy', 'true');
 
     try {
+      if (!supabase) throw new Error('Production authentication is not configured.');
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -365,10 +424,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ─── Logout ───
   logoutBtn.addEventListener('click', async () => {
-    const { error } = await supabase.auth.signOut();
+    if (localStorage.getItem('sahaySetuDemoSession')) {
+      localStorage.removeItem('sahaySetuDemoSession');
+      renderAuthState(null);
+      return;
+    }
+    let error;
+    try {
+      if (!supabase) throw new Error('Production authentication is not configured.');
+      ({ error } = await supabase.auth.signOut());
+    } catch (_error) {
+      window.showToast?.('Sign-out is temporarily unavailable. Please try again.', 'error');
+      return;
+    }
 
     if (error) {
-      alert(error.message);
+      window.showToast?.(error.message || 'Sign-out failed. Please try again.', 'error');
       return;
     }
 
@@ -377,27 +448,90 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ─── Auth UI Update ───
   async function updateAuthUI() {
-    const { data, error } = await supabase.auth.getSession();
-    if (error) {
-      console.error('Could not retrieve auth session:', error.message);
-      renderAuthState(null);
+    const demoSession = localStorage.getItem('sahaySetuDemoSession');
+    if (demoSession) {
+      try { renderAuthState(JSON.parse(demoSession)); } catch { localStorage.removeItem('sahaySetuDemoSession'); }
       return;
     }
-    renderAuthState(data.session?.user || null);
+    try {
+      if (!supabase) {
+        renderAuthState(null);
+        return;
+      }
+      const { data, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      renderAuthState(data.session?.user || null);
+    } catch (error) {
+      console.error('Could not retrieve auth session:', error.message);
+      renderAuthState(null);
+    }
   }
 
   function renderAuthState(user) {
     authNav.hidden = Boolean(user);
     authUser.hidden = !user;
     authUserEmail.textContent = user
-      ? (user.user_metadata?.full_name || user.email || 'My Profile')
+      ? `${user.user_metadata?.full_name || user.email || 'My Profile'}${user.demo ? ' · Demo' : ''}`
       : '';
+    window._currentUser = user;
+    if (typeof window.checkGovAuth === 'function') {
+      window.checkGovAuth();
+    }
   }
 
+  window.getCurrentAuthUser = () => {
+    const demoSession = localStorage.getItem('sahaySetuDemoSession');
+    if (demoSession) {
+      try { return JSON.parse(demoSession); } catch { localStorage.removeItem('sahaySetuDemoSession'); }
+    }
+    return window._currentUser || null;
+  };
+
+  window.loginGovernmentDirect = async (email, password) => {
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    const cleanPassword = String(password || '');
+    const demoAccount = DEMO_ACCOUNTS[cleanEmail];
+    if (demoAccount && demoAccount.password === cleanPassword && demoAccount.role === 'government') {
+      const demoUser = {
+        email: cleanEmail,
+        user_metadata: { full_name: demoAccount.name },
+        app_metadata: { role: 'government' },
+        demo: true
+      };
+      localStorage.setItem('sahaySetuDemoSession', JSON.stringify(demoUser));
+      renderAuthState(demoUser);
+      return { success: true, user: demoUser };
+    }
+
+    if (supabase) {
+      const { data, error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password: cleanPassword });
+      if (error) throw error;
+      const role = data.user?.app_metadata?.role;
+      if (role !== 'government') {
+        await supabase.auth.signOut();
+        throw new Error('Access denied. This account does not possess official Government credentials.');
+      }
+      renderAuthState(data.user);
+      return { success: true, user: data.user };
+    }
+
+    throw new Error('Invalid Government credentials. Please check your official email and password.');
+  };
+
+  window.logoutCurrentSession = async () => {
+    localStorage.removeItem('sahaySetuDemoSession');
+    if (supabase) {
+      await supabase.auth.signOut().catch(() => {});
+    }
+    renderAuthState(null);
+  };
+
   // Update navbar after login, logout, or session restoration.
-  supabase.auth.onAuthStateChange((_event, session) => {
-    renderAuthState(session?.user || null);
-  });
+  if (supabase) {
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (!localStorage.getItem('sahaySetuDemoSession')) renderAuthState(session?.user || null);
+    });
+  }
 
   await updateAuthUI();
 });
