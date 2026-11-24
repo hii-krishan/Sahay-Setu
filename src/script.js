@@ -32,7 +32,7 @@ function showSection(name) {
   document.getElementById('hamburger')?.setAttribute('aria-expanded', 'false');
 
   // Special init per section
-  if (name === 'ngo') initNGODashboard();
+  if (name === 'ngo') checkNgoAuth();
   if (name === 'government') checkGovAuth();
 }
 
@@ -64,7 +64,6 @@ function showCitizenTab(tab) {
   const btn = document.getElementById('ctab-' + tab);
   if (content) content.classList.add('active');
   if (btn) btn.classList.add('active');
-  if (tab === 'nearby') loadReliefResources();
 }
 
 /* ============================================================
@@ -79,6 +78,13 @@ function showNGOTab(tab) {
   const btn = document.getElementById('ntab-' + tab);
   if (content) content.classList.add('active');
   if (btn) btn.classList.add('active');
+
+  const user = window.getCurrentAuthUser?.();
+  if (user && user.app_metadata?.role === 'ngo') {
+    if (!window._ngoLoadedOnce) {
+      loadNGODashboard();
+    }
+  }
 }
 
 /* ============================================================
@@ -222,22 +228,40 @@ async function authorizedApi(path, options = {}) {
   const client = window.supabase;
   const demoSession = localStorage.getItem('sahaySetuDemoSession');
   let token = '';
-  if (client) {
+
+  if (demoSession) {
+    try {
+      const parsed = JSON.parse(demoSession);
+      token = parsed?.app_metadata?.role === 'ngo' ? 'DEMO_NGO_TOKEN' : 'DEMO_GOVERNMENT_TOKEN';
+    } catch {
+      token = 'DEMO_GOVERNMENT_TOKEN';
+    }
+  }
+
+  if (!token && client) {
     try {
       const { data: { session }, error } = await client.auth.getSession();
       if (!error && session?.access_token) token = session.access_token;
     } catch (_e) {}
   }
+
   if (!token && demoSession) {
-    token = 'DEMO_SESSION_TOKEN';
+    token = 'DEMO_GOVERNMENT_TOKEN';
   }
+
   if (!token) throw new Error('Please sign in with your authorized account.');
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, ...(options.headers || {}) }
   });
+
   const result = await response.json().catch(() => ({}));
-  if (response.status === 401 && client) await clearExpiredLocalSession(client);
+
+  if (response.status === 401 && client && !demoSession) {
+    await clearExpiredLocalSession(client);
+  }
+
   if (!response.ok || !result.success) throw new Error(result.message || 'The request could not be completed.');
   return result;
 }
@@ -546,23 +570,70 @@ async function loadGovernmentNGOs() {
   body.innerHTML = '<tr><td colspan="7">Loading NGO applications…</td></tr>';
   try {
     const result = await authorizedApi('/government/ngos');
-    body.innerHTML = (result.applications || []).map(application => {
-      const pending = application.status === 'Pending';
-      return `<tr><td><strong>${escapeHTML(application.organizationName)}</strong></td><td>${escapeHTML(application.location)}</td><td>${escapeHTML((application.specialties || []).join(', '))}</td><td>${escapeHTML(application.registrationNumber)}</td><td>${application.createdAt ? escapeHTML(new Date(application.createdAt).toLocaleDateString('en-IN')) : '—'}</td><td><span class="badge ${pending ? 'medium' : application.status === 'Approved' ? 'low' : 'critical'}">${escapeHTML(application.status)}</span></td><td>${pending ? `<button class="btn-sm btn-accept" data-ngo-application="${escapeHTML(application._id)}" data-review-status="Approved">Approve</button> <button class="btn-sm btn-update" data-ngo-application="${escapeHTML(application._id)}" data-review-status="Rejected">Reject</button>` : 'Reviewed'}</td></tr>`;
+    const applications = result.applications || [];
+    body.innerHTML = applications.map(application => {
+      const isPending = application.status === 'Pending';
+      const isApproved = application.status === 'Approved';
+
+      let actionButtons = '';
+      if (isPending) {
+        actionButtons = `
+          <div class="ngo-action-btn-group">
+            <button type="button" class="btn-sm btn-accept" data-ngo-application="${escapeHTML(application._id)}" data-review-status="Approved">Approve</button>
+            <button type="button" class="btn-sm btn-reject" data-ngo-application="${escapeHTML(application._id)}" data-review-status="Rejected">Reject</button>
+          </div>
+        `;
+      } else if (isApproved) {
+        actionButtons = `
+          <div class="ngo-action-btn-group">
+            <span class="status-reviewed-tag">Approved</span>
+            <button type="button" class="btn-sm btn-subtle-reject" data-ngo-application="${escapeHTML(application._id)}" data-review-status="Rejected" title="Revoke and Reject">Reject</button>
+          </div>
+        `;
+      } else {
+        actionButtons = `
+          <div class="ngo-action-btn-group">
+            <span class="status-reviewed-tag rejected">Rejected</span>
+            <button type="button" class="btn-sm btn-subtle-approve" data-ngo-application="${escapeHTML(application._id)}" data-review-status="Approved" title="Re-approve application">Approve</button>
+          </div>
+        `;
+      }
+
+      return `<tr>
+        <td><strong>${escapeHTML(application.organizationName)}</strong></td>
+        <td>${escapeHTML(application.location)}</td>
+        <td>${escapeHTML(Array.isArray(application.specialties) ? application.specialties.join(', ') : application.specialties || '')}</td>
+        <td><code>${escapeHTML(application.registrationNumber || '—')}</code></td>
+        <td>${application.createdAt ? escapeHTML(new Date(application.createdAt).toLocaleDateString('en-IN')) : '—'}</td>
+        <td><span class="badge ${isPending ? 'medium' : isApproved ? 'low' : 'critical'}">${escapeHTML(application.status)}</span></td>
+        <td>${actionButtons}</td>
+      </tr>`;
     }).join('') || '<tr><td colspan="7">No NGO applications have been submitted.</td></tr>';
+
     body.onclick = async event => {
-      const button = event.target.closest('[data-ngo-application]'); if (!button) return;
+      const button = event.target.closest('[data-ngo-application]');
+      if (!button) return;
+      const appId = button.dataset.ngoApplication;
+      const reviewStatus = button.dataset.reviewStatus;
       button.disabled = true;
-      try { await authorizedApi(`/government/ngos/${encodeURIComponent(button.dataset.ngoApplication)}/status`, { method: 'PATCH', body: JSON.stringify({ status: button.dataset.reviewStatus }) }); showToast(`NGO application marked ${button.dataset.reviewStatus} successfully.`, 'success'); await loadGovernmentNGOs(); }
-      catch (error) { button.disabled = false; showToast(error.message, 'error'); }
+      const originalText = button.textContent;
+      button.textContent = 'Updating...';
+      try {
+        await authorizedApi(`/government/ngos/${encodeURIComponent(appId)}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: reviewStatus })
+        });
+        showToast(`NGO application marked ${reviewStatus} successfully.`, 'success');
+        await loadGovernmentNGOs();
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = originalText;
+        showToast(error.message, 'error');
+      }
     };
   } catch (error) {
-    body.innerHTML = [
-      ['Sahyog Relief Network', 'Patna, Bihar', 'Food, Water, Medical', 'NGO-BR-2048', 'Approved'],
-      ['Coastal Care Foundation', 'Puri, Odisha', 'Shelter, Rescue', 'NGO-OD-1182', 'Pending'],
-      ['Himalayan Aid Collective', 'Chamoli, Uttarakhand', 'Rescue, Logistics', 'NGO-UK-0921', 'Approved']
-    ].map(application => `<tr><td><strong>${application[0]}</strong></td><td>${application[1]}</td><td>${application[2]}</td><td>${application[3]}</td><td>24 Oct 2026</td><td><span class="badge ${application[4] === 'Approved' ? 'low' : 'medium'}">${application[4]}</span></td><td>${renderDemoLabel()}</td></tr>`).join('');
-    console.warn('Government NGO list unavailable; showing demo data:', error.message);
+    console.warn('Government NGO list lookup error:', error.message);
+    body.innerHTML = `<tr><td colspan="7" class="request-empty-state">Unable to load NGO applications: ${escapeHTML(error.message)}</td></tr>`;
   }
 }
 
@@ -1002,6 +1073,24 @@ function renderDemoLabel() {
   return '<span class="demo-data-label">DEMO DATA</span>';
 }
 
+function deployVolunteer(btn, name) {
+  if (!btn || btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = '✓ Deployed';
+  btn.classList.remove('btn-accept');
+  btn.classList.add('btn-deployed');
+  const row = btn.closest('tr');
+  if (row) {
+    if (row.cells && row.cells[4]) {
+      row.cells[4].innerHTML = '<span class="status-reviewed-tag">Deployed</span>';
+    }
+    if (row.cells && row.cells[3]) {
+      row.cells[3].innerHTML = '<span class="badge low">Dispatched</span>';
+    }
+  }
+  showToast(`Volunteer ${name ? `"${name}" ` : ''}deployed to active relief operations.`, 'success');
+}
+
 function renderNGODemo() {
   window._ngoRequests = MOCK_DATA.requests;
   renderNGORequests(MOCK_DATA.requests);
@@ -1010,7 +1099,23 @@ function renderNGODemo() {
   const resourceBody = document.getElementById('ngoResourcesBody');
   if (resourceBody) resourceBody.innerHTML = MOCK_DATA.resources.map(resource => `<tr><td>${escapeHTML(resource.name)}</td><td>${resource.available}</td><td>${resource.allocated}</td><td>${resource.total}</td><td>AVAILABLE</td><td>${renderDemoLabel()}</td></tr>`).join('');
   const volunteerBody = document.getElementById('ngoVolunteersBody');
-  if (volunteerBody) volunteerBody.innerHTML = MOCK_DATA.volunteers.map(person => `<tr><td>${escapeHTML(person.name)}</td><td>${escapeHTML(person.skills.join(', '))}</td><td>${escapeHTML(person.location)}</td><td>${escapeHTML(person.availability)}</td><td>Unassigned</td><td>${renderDemoLabel()}</td></tr>`).join('');
+  if (volunteerBody) {
+    volunteerBody.innerHTML = MOCK_DATA.volunteers.map(person => {
+      const skills = Array.isArray(person.skills) ? person.skills.join(', ') : person.skills || 'General relief';
+      return `<tr>
+        <td><strong>${escapeHTML(person.name)}</strong></td>
+        <td>${escapeHTML(skills)}</td>
+        <td>${escapeHTML(person.location)}</td>
+        <td><span class="badge low">${escapeHTML(person.availability || 'Immediate')}</span></td>
+        <td><span class="status-reviewed-tag">Active</span></td>
+        <td><button class="btn-sm btn-accept" data-deploy-volunteer="${escapeHTML(person.name)}" onclick="deployVolunteer(this, '${escapeHTML(person.name)}'); event.stopPropagation();">Deploy</button></td>
+      </tr>`;
+    }).join('');
+    volunteerBody.onclick = event => {
+      const button = event.target.closest('[data-deploy-volunteer]');
+      if (button && !button.disabled) deployVolunteer(button, button.dataset.deployVolunteer);
+    };
+  }
   const donationsBody = document.getElementById('ngoDonationsBody');
   if (donationsBody) donationsBody.innerHTML = MOCK_DATA.donations.map(donation => `<tr><td>Demo supporter</td><td>${donation.currency} ${donation.amount.toLocaleString('en-IN')}</td><td>${escapeHTML(donation.destination)}</td><td>${new Date(donation.createdAt).toLocaleDateString('en-IN')}</td><td>Pledged</td></tr>`).join('');
   const resources = MOCK_DATA.resources;
@@ -1093,7 +1198,7 @@ async function handleGovLogin(e) {
     if (msgEl) {
       msgEl.hidden = false;
       msgEl.className = 'gov-login-message error';
-      msgEl.textContent = '❌ Please enter both your government email and access password.';
+      msgEl.textContent = 'Please enter both your government email and access password.';
     }
     return;
   }
@@ -1110,7 +1215,7 @@ async function handleGovLogin(e) {
     if (msgEl) {
       msgEl.hidden = false;
       msgEl.className = 'gov-login-message error';
-      msgEl.textContent = `❌ ${error.message}`;
+      msgEl.textContent = error.message;
     }
     showToast(error.message, 'error');
   } finally {
@@ -1143,6 +1248,98 @@ async function logoutGovernment() {
   }
   showToast('Logged out of Government command session.', 'info');
   checkGovAuth();
+}
+
+function checkNgoAuth() {
+  const gate = document.getElementById('ngo-login-gate');
+  const view = document.getElementById('ngo-authenticated-view');
+  if (!gate || !view) return;
+
+  const user = window.getCurrentAuthUser?.();
+  const role = user?.app_metadata?.role;
+  const isNgo = role === 'ngo';
+
+  if (isNgo) {
+    gate.hidden = true;
+    view.hidden = false;
+    const coordName = document.getElementById('ngoCoordinatorName');
+    const coordEmail = document.getElementById('ngoCoordinatorEmail');
+    if (coordName) coordName.textContent = user.user_metadata?.full_name || 'NGO Field Coordinator';
+    if (coordEmail) coordEmail.textContent = `${user.email} · SEEDS India Relief Operations`;
+    initNGODashboard();
+  } else {
+    gate.hidden = false;
+    view.hidden = true;
+  }
+}
+
+async function handleNgoLogin(e) {
+  if (e) e.preventDefault();
+  const emailInput = document.getElementById('ngoLoginEmail');
+  const pwInput = document.getElementById('ngoLoginPassword');
+  const email = emailInput ? emailInput.value.trim() : '';
+  const password = pwInput ? pwInput.value : '';
+  const msgEl = document.getElementById('ngoLoginMessage');
+  const submitBtn = e?.currentTarget?.querySelector?.('button[type="submit"]');
+
+  if (msgEl) {
+    msgEl.hidden = true;
+    msgEl.textContent = '';
+  }
+  if (!email || !password) {
+    if (msgEl) {
+      msgEl.hidden = false;
+      msgEl.className = 'gov-login-message error';
+      msgEl.textContent = 'Please enter both your registered NGO email and access password.';
+    }
+    return;
+  }
+  if (submitBtn) submitBtn.disabled = true;
+
+  try {
+    if (typeof window.loginNgoDirect !== 'function') {
+      throw new Error('Authentication system is loading. Please try again.');
+    }
+    await window.loginNgoDirect(email, password);
+    showToast('NGO credentials verified. Workspace access granted.', 'success');
+    checkNgoAuth();
+  } catch (error) {
+    if (msgEl) {
+      msgEl.hidden = false;
+      msgEl.className = 'gov-login-message error';
+      msgEl.textContent = error.message;
+    }
+    showToast(error.message, 'error');
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
+  }
+}
+
+async function quickNgoLogin() {
+  const emailInput = document.getElementById('ngoLoginEmail');
+  const pwInput = document.getElementById('ngoLoginPassword');
+  if (emailInput) emailInput.value = 'krishan-ngo@sahay-setu.com';
+  if (pwInput) pwInput.value = 'Krishan123@';
+  try {
+    if (typeof window.loginNgoDirect !== 'function') {
+      throw new Error('Authentication is initializing. Please try again.');
+    }
+    await window.loginNgoDirect('krishan-ngo@sahay-setu.com', 'Krishan123@');
+    showToast('Demo NGO Coordinator (SEEDS India) authenticated.', 'success');
+    checkNgoAuth();
+  } catch (error) {
+    showToast(error.message, 'error');
+  }
+}
+
+async function logoutNgo() {
+  if (typeof window.logoutCurrentSession === 'function') {
+    await window.logoutCurrentSession();
+  } else {
+    localStorage.removeItem('sahaySetuDemoSession');
+  }
+  showToast('Logged out of NGO operations session.', 'info');
+  checkNgoAuth();
 }
 
 function copyModalReqId(text, btn) {
@@ -1207,14 +1404,51 @@ async function loadGovernmentDashboard() {
     const result = await authorizedApi('/government/dashboard');
     const reports = result.reports || [];
     if (table) {
-      table.innerHTML = reports.map(report => `<tr><td>${escapeHTML(report.type || 'Emergency')}</td><td>${escapeHTML(report.location || 'Location not provided')}</td><td><span class="badge ${escapeHTML(String(report.severity || 'medium').toLowerCase())}">${escapeHTML(String(report.severity || 'Not set').toUpperCase())}</span></td><td>${escapeHTML(report.peopleAffected ?? '—')}</td><td>${escapeHTML(report.requestId)}</td><td><select data-report-id="${escapeHTML(report.requestId)}" aria-label="Update status for ${escapeHTML(report.requestId)}"><option value="">${escapeHTML(report.status || 'Submitted')}</option><option>Under Review</option><option>In Progress</option><option>Resolved</option></select></td></tr>`).join('') || '<tr><td colspan="6">No emergency reports have been submitted.</td></tr>';
+      table.innerHTML = reports.map(report => {
+        const isVerified = (report.status || '').toLowerCase() === 'verified';
+        const currentStatus = report.status || 'Submitted';
+        return `<tr>
+          <td>${escapeHTML(report.type || 'Emergency')}</td>
+          <td>${escapeHTML(report.location || 'Location not provided')}</td>
+          <td><span class="badge ${escapeHTML(String(report.severity || 'medium').toLowerCase())}">${escapeHTML(String(report.severity || 'Not set').toUpperCase())}</span></td>
+          <td>${escapeHTML(report.peopleAffected ?? '—')}</td>
+          <td><code>${escapeHTML(report.requestId)}</code></td>
+          <td>
+            <select data-report-id="${escapeHTML(report.requestId)}" class="gov-select-control status-select ${isVerified ? 'is-verified' : ''}" aria-label="Update status for ${escapeHTML(report.requestId)}">
+              ${!isVerified ? `<option value="" disabled selected>${escapeHTML(currentStatus)}</option>` : ''}
+              <option value="Verified" ${isVerified ? 'selected' : ''}>Verified</option>
+            </select>
+          </td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="6">No emergency reports have been submitted.</td></tr>';
       table.onchange = event => { const select = event.target.closest('[data-report-id]'); if (select?.value) updateGovernmentReportStatus(select.dataset.reportId, select.value); };
     }
     const count = document.getElementById('govReportCount');
     if (count) count.textContent = String((result.summary?.reports ?? reports.length) + (result.summary?.helpRequests ?? 0));
     const helpBody = document.getElementById('governmentHelpBody');
     if (helpBody) {
-      helpBody.innerHTML = (result.requests || []).map(request => `<tr><td>${escapeHTML(request.requestId)}</td><td>${escapeHTML(request.type || 'Help')}</td><td>${escapeHTML(request.location || 'Not provided')}</td><td>${escapeHTML(request.peopleAffected ?? '—')}</td><td><select data-help-id="${escapeHTML(request.requestId)}" aria-label="Update help request ${escapeHTML(request.requestId)}"><option value="">${escapeHTML(request.status || 'Submitted')}</option><option>Under Review</option><option>In Progress</option><option>Resolved</option></select></td></tr>`).join('') || '<tr><td colspan="5">No help requests have been submitted.</td></tr>';
+      helpBody.innerHTML = (result.requests || []).map(request => {
+        let currentStatus = request.status || 'In Review';
+        if (currentStatus === 'Under Review') currentStatus = 'In Review';
+        if (currentStatus === 'In Progress') currentStatus = 'NGO Assigned';
+        const validOptions = ['In Review', 'NGO Assigned', 'Resolved'];
+        const hasOther = !validOptions.includes(currentStatus);
+        const statusSlug = currentStatus.toLowerCase().replace(/\s+/g, '-');
+        return `<tr>
+          <td><code>${escapeHTML(request.requestId)}</code></td>
+          <td>${escapeHTML(request.type || 'Help')}</td>
+          <td>${escapeHTML(request.location || 'Not provided')}</td>
+          <td>${escapeHTML(request.peopleAffected ?? '—')}</td>
+          <td>
+            <select data-help-id="${escapeHTML(request.requestId)}" class="gov-select-control status-select status-${statusSlug}" aria-label="Update help request ${escapeHTML(request.requestId)}">
+              ${hasOther ? `<option value="" disabled selected>${escapeHTML(currentStatus)}</option>` : ''}
+              <option value="In Review" ${currentStatus === 'In Review' ? 'selected' : ''}>In Review</option>
+              <option value="NGO Assigned" ${currentStatus === 'NGO Assigned' ? 'selected' : ''}>NGO Assigned</option>
+              <option value="Resolved" ${currentStatus === 'Resolved' ? 'selected' : ''}>Resolved</option>
+            </select>
+          </td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="5">No help requests have been submitted.</td></tr>';
       helpBody.onchange = event => { const select = event.target.closest('[data-help-id]'); if (select?.value) updateGovernmentHelpStatus(select.dataset.helpId, select.value); };
     }
     const metricResults = await Promise.allSettled([authorizedApi('/government/analytics'), authorizedApi('/government/operations')]);
@@ -1230,9 +1464,14 @@ async function loadGovernmentDashboard() {
     Object.entries(metricValues).forEach(([id, value]) => { const el = document.getElementById(id); if (el) el.textContent = value; });
   } catch (error) {
     const reports = MOCK_DATA.requests.map(request => ({ ...request, type: request.type.split(' — ')[0] }));
-    if (table) table.innerHTML = reports.map(report => `<tr><td>${escapeHTML(report.type)}</td><td>${escapeHTML(report.location)}</td><td><span class="badge ${report.severity}">${report.severity.toUpperCase()}</span></td><td>${report.peopleAffected}</td><td>${report.requestId}</td><td>${renderDemoLabel()}</td></tr>`).join('');
+    if (table) table.innerHTML = reports.map(report => `<tr><td>${escapeHTML(report.type)}</td><td>${escapeHTML(report.location)}</td><td><span class="badge ${report.severity}">${report.severity.toUpperCase()}</span></td><td>${report.peopleAffected}</td><td><code>${report.requestId}</code></td><td><span class="badge verified">Verified</span></td></tr>`).join('');
     const helpBody = document.getElementById('governmentHelpBody');
-    if (helpBody) helpBody.innerHTML = MOCK_DATA.requests.map(request => `<tr><td>${request.requestId}</td><td>${escapeHTML(request.type)}</td><td>${escapeHTML(request.location)}</td><td>${request.peopleAffected}</td><td>${escapeHTML(request.status)} · ${renderDemoLabel()}</td></tr>`).join('');
+    if (helpBody) helpBody.innerHTML = MOCK_DATA.requests.map((request, i) => {
+      const mockStatuses = ['In Review', 'NGO Assigned', 'Resolved'];
+      const st = mockStatuses[i % mockStatuses.length];
+      const badgeCls = st === 'Resolved' ? 'low' : st === 'NGO Assigned' ? 'high' : 'medium';
+      return `<tr><td><code>${request.requestId}</code></td><td>${escapeHTML(request.type)}</td><td>${escapeHTML(request.location)}</td><td>${request.peopleAffected}</td><td><span class="badge ${badgeCls}">${st}</span></td></tr>`;
+    }).join('');
     const values = { govActiveDisasterCount: '3', govCampCount: '2', govNgoCount: '18', govPeopleCount: '1,264', govOperationCount: '7', govReportCount: '6' };
     Object.entries(values).forEach(([id, value]) => { const element = document.getElementById(id); if (element) element.textContent = value; });
     console.warn('Government dashboard unavailable; showing demo data:', error.message);
@@ -1273,7 +1512,24 @@ async function loadNGODashboard() {
     document.getElementById('ngoActiveCount').textContent = String(window._ngoRequests.filter(request => request.status === 'In Progress').length);
     document.getElementById('ngoResolvedCount').textContent = String(window._ngoRequests.filter(request => request.status === 'Resolved').length);
     const volunteerBody = document.getElementById('ngoVolunteersBody');
-    if (volunteerBody) volunteerBody.innerHTML = (result.volunteers || []).map(person => `<tr><td>${escapeHTML(person.name || 'Volunteer')}</td><td>${escapeHTML((person.skills || []).join(', '))}</td><td>${escapeHTML(person.location || 'Not provided')}</td><td>${escapeHTML(person.availability || person.status || 'Registered')}</td><td>Unassigned</td><td>—</td></tr>`).join('') || '<tr><td colspan="6">No volunteer registrations yet.</td></tr>';
+    if (volunteerBody) {
+      volunteerBody.innerHTML = (result.volunteers || []).map(person => {
+        const skills = Array.isArray(person.skills) ? person.skills.join(', ') : person.skills || 'General relief';
+        return `<tr>
+          <td><strong>${escapeHTML(person.name || 'Volunteer')}</strong></td>
+          <td>${escapeHTML(skills)}</td>
+          <td>${escapeHTML(person.location || 'Not provided')}</td>
+          <td><span class="badge low">${escapeHTML(person.availability || person.status || 'Immediate')}</span></td>
+          <td><span class="status-reviewed-tag">Active</span></td>
+          <td><button class="btn-sm btn-accept" data-deploy-volunteer="${escapeHTML(person.name || 'Volunteer')}" onclick="deployVolunteer(this, '${escapeHTML(person.name || 'Volunteer')}'); event.stopPropagation();">Deploy</button></td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="6">No volunteer registrations yet.</td></tr>';
+      volunteerBody.onclick = event => {
+        const button = event.target.closest('[data-deploy-volunteer]');
+        if (button && !button.disabled) deployVolunteer(button, button.dataset.deployVolunteer);
+      };
+    }
+    window._ngoLoadedOnce = true;
     const donationsBody = document.getElementById('ngoDonationsBody');
     if (donationsBody) donationsBody.innerHTML = (result.donations || []).map(donation => `<tr><td>Private</td><td>${escapeHTML(donation.currency || 'INR')} ${escapeHTML(donation.amount ?? '—')}</td><td>${escapeHTML(donation.destination || 'General relief')}</td><td>${donation.createdAt ? escapeHTML(new Date(donation.createdAt).toLocaleDateString('en-IN')) : '—'}</td><td>${escapeHTML(donation.status || 'Pledged')}</td></tr>`).join('') || '<tr><td colspan="5">No donation intents yet.</td></tr>';
     const volunteerCount = document.getElementById('ngoVolunteerCount');
@@ -1296,25 +1552,33 @@ async function loadNGODashboard() {
   }
 }
 
+async function loadMyNgoApplication() {
+  const statusEl = document.getElementById('ngoApplicationStatus');
+  if (!statusEl) return;
+  const user = window.getCurrentAuthUser?.();
+  if (!user) {
+    statusEl.textContent = 'Sign in to check whether this account has an NGO application.';
+    return;
+  }
+  try {
+    const result = await authorizedApi('/ngo/application');
+    if (result && result.application) {
+      statusEl.innerHTML = `Organization: <strong>${escapeHTML(result.application.organizationName)}</strong> · Status: <span class="badge ${result.application.status === 'Approved' ? 'low' : 'medium'}">${escapeHTML(result.application.status)}</span>`;
+    } else {
+      statusEl.innerHTML = `Signed in as <strong>${escapeHTML(user.user_metadata?.full_name || user.email)}</strong> · Verified Relief Coordinator (SEEDS India).`;
+    }
+  } catch (_e) {
+    statusEl.innerHTML = `Signed in as <strong>${escapeHTML(user.user_metadata?.full_name || user.email)}</strong> · Verified Relief Coordinator (SEEDS India).`;
+  }
+}
+
 function initNGODashboard() {
   loadMyNgoApplication();
-  const clock = document.getElementById('ngoLiveTime');
-  if (!clock) return;
-
-  function tick() {
-    const now = new Date();
-    clock.textContent = now.toLocaleTimeString('en-IN', {
-      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-    });
+  if (window._ngoClock) {
+    clearInterval(window._ngoClock);
+    window._ngoClock = null;
   }
-  tick();
-  if (!window._ngoLoading) {
-    window._ngoLoading = true;
-    loadNGODashboard().finally(() => { window._ngoLoading = false; });
-  }
-  if (!window._ngoClock) {
-    window._ngoClock = setInterval(tick, 1000);
-  }
+  loadNGODashboard();
 }
 
 /* ============================================================
@@ -1578,6 +1842,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Show home section by default
   showSection('home');
   checkGovAuth();
+  checkNgoAuth();
 
   // Animate counters on home visible
   setTimeout(() => {
@@ -1595,9 +1860,197 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  updateAiKeyStatusBadge();
+
   console.log('%c🌉 Sahay-Setu — Disaster Relief Platform', 'color:#f97316;font-size:16px;font-weight:bold;');
   console.log('%cRight Help → Right Person → Right Place → Right Time', 'color:#8892a4;font-size:12px;');
 });
+
+/* ============================================================
+   AI DISASTER SAFETY ASSISTANT CHATBOT LOGIC
+   ============================================================ */
+
+let aiChatHistory = [];
+
+function updateAiKeyStatusBadge() {
+  const badge = document.getElementById('aiStatusBadge');
+  if (badge) badge.innerHTML = '<span class="pulse-dot green"></span> Live Assistant (Gemini)';
+}
+
+function clearAiChat() {
+  aiChatHistory = [];
+  const container = document.getElementById('safetyAiMessages');
+  if (container) {
+    container.innerHTML = `
+      <div class="ai-msg assistant">
+        <div class="ai-msg-avatar">🤖</div>
+        <div class="ai-msg-bubble">
+          <div class="ai-msg-author">Sahay-Setu Safety AI</div>
+          <div class="ai-msg-text">
+            Conversation cleared. How can I assist your disaster preparedness or emergency safety today?
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function renderSimpleMarkdown(text) {
+  if (!text) return '';
+  let escaped = escapeHTML(text);
+
+  // Headers (### Header)
+  escaped = escaped.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+  escaped = escaped.replace(/^## (.*$)/gim, '<h3>$1</h3>');
+
+  // Bold (**bold**)
+  escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+  // Italics (*italic*)
+  escaped = escaped.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+  // Bullet points and lists
+  const lines = escaped.split('\n');
+  let inList = false;
+  let html = '';
+
+  for (let line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      if (!inList) {
+        html += '<ul>';
+        inList = true;
+      }
+      html += `<li>${trimmed.slice(2)}</li>`;
+    } else if (/^\d+\.\s/.test(trimmed)) {
+      if (!inList) {
+        html += '<ol>';
+        inList = 'ol';
+      }
+      html += `<li>${trimmed.replace(/^\d+\.\s/, '')}</li>`;
+    } else {
+      if (inList) {
+        html += inList === 'ol' ? '</ol>' : '</ul>';
+        inList = false;
+      }
+      if (trimmed.length > 0) {
+        html += `<p>${trimmed}</p>`;
+      }
+    }
+  }
+
+  if (inList) {
+    html += inList === 'ol' ? '</ol>' : '</ul>';
+  }
+
+  return html;
+}
+
+function appendAiMessage(role, text) {
+  const container = document.getElementById('safetyAiMessages');
+  if (!container) return;
+
+  const msgDiv = document.createElement('div');
+  msgDiv.className = `ai-msg ${role}`;
+
+  const isUser = role === 'user';
+  const avatar = isUser ? '👤' : '🤖';
+  const author = isUser ? 'You' : 'Sahay-Setu Safety AI';
+  const content = isUser ? `<div class="ai-msg-text">${escapeHTML(text)}</div>` : `<div class="ai-msg-text">${renderSimpleMarkdown(text)}</div>`;
+
+  msgDiv.innerHTML = `
+    <div class="ai-msg-avatar">${avatar}</div>
+    <div class="ai-msg-bubble">
+      <div class="ai-msg-author">${author}</div>
+      ${content}
+    </div>
+  `;
+
+  container.appendChild(msgDiv);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showAiTypingIndicator() {
+  const container = document.getElementById('safetyAiMessages');
+  if (!container) return null;
+
+  const id = `typing-${Date.now()}`;
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'ai-msg assistant';
+  typingDiv.id = id;
+  typingDiv.innerHTML = `
+    <div class="ai-msg-avatar">🤖</div>
+    <div class="ai-msg-bubble">
+      <div class="ai-msg-author">Sahay-Setu Safety AI</div>
+      <div class="ai-msg-text">
+        <div class="typing-dots">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  container.appendChild(typingDiv);
+  container.scrollTop = container.scrollHeight;
+  return id;
+}
+
+function removeAiTypingIndicator(id) {
+  if (!id) return;
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+async function askAiAssistant(question) {
+  const input = document.getElementById('safetyAiInput');
+  if (input) input.value = question;
+  await sendAiMessage(question);
+}
+
+async function handleAiChatSubmit(event) {
+  if (event) event.preventDefault();
+  const input = document.getElementById('safetyAiInput');
+  if (!input) return;
+  const query = input.value.trim();
+  if (!query) return;
+  input.value = '';
+  await sendAiMessage(query);
+}
+
+async function sendAiMessage(text) {
+  appendAiMessage('user', text);
+  aiChatHistory.push({ role: 'user', text });
+
+  const typingId = showAiTypingIndicator();
+  const sendBtn = document.getElementById('safetyAiSendBtn');
+  if (sendBtn) sendBtn.disabled = true;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: text,
+        history: aiChatHistory
+      })
+    });
+
+    const data = await response.json();
+    removeAiTypingIndicator(typingId);
+
+    const reply = data.reply || data.message || "I could not process your request at the moment. Please dial 112 for immediate emergencies.";
+    appendAiMessage('assistant', reply);
+    aiChatHistory.push({ role: 'assistant', text: reply });
+  } catch (error) {
+    removeAiTypingIndicator(typingId);
+    console.error('Chat error:', error);
+    appendAiMessage('assistant', `⚠️ **Network issue contacting assistant:** ${escapeHTML(error.message)}\n\nFor life-threatening emergencies, call **112** immediately.`);
+  } finally {
+    if (sendBtn) sendBtn.disabled = false;
+  }
+}
 
 /* ============================================================
    PREVENT DEFAULT LINK BEHAVIOR GLOBALLY WHERE NEEDED
@@ -1616,5 +2069,8 @@ Object.assign(window, {
   showCitizenTab, showCreateCamp, showDisasterGuide, showGovTab, showNGOTab,
   showSection, submitHelpRequest, submitReport, submitVolunteer, toggleMenu,
   trackRequest, saveNGOResource, saveNGOCamp, updateNGORequestStatus, updateGovernmentReportStatus, updateGovernmentHelpStatus,
-  showNGOApplicationForm, checkGovAuth, handleGovLogin, quickGovLogin, logoutGovernment, copyModalReqId
+  showNGOApplicationForm, checkGovAuth, handleGovLogin, quickGovLogin, logoutGovernment, copyModalReqId,
+  checkNgoAuth, handleNgoLogin, quickNgoLogin, logoutNgo,
+  handleAiChatSubmit, askAiAssistant, clearAiChat,
+  showToast, deployVolunteer
 });

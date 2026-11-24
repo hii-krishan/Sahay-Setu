@@ -287,76 +287,84 @@
       <div class="hero">
         <div class="hero-bg-grid"></div>
         <div class="hero-particles" id="particles"></div>
-        <div class="hero-content">
-          <div class="hero-eyebrow"><span class="pulse-dot"></span> India’s connected relief network</div>
-          <h1 class="hero-title">
-            <span class="gradient-text">Sahay-Setu</span>
-            <br/>Disaster Relief Platform
-          </h1>
-          <p class="hero-mantra">
-            <span class="mantra-item">Right Help</span>
-            <span class="mantra-sep">→</span>
-            <span class="mantra-item">Right Person</span>
-            <span class="mantra-sep">→</span>
-            <span class="mantra-item">Right Place</span>
-            <span class="mantra-sep">→</span>
-            <span class="mantra-item">Right Time</span>
-          </p>
-          <p class="hero-desc">
-            A unified platform connecting <strong>Citizens, NGOs, and Government</strong> authorities to deliver rapid, coordinated disaster response and relief management.
-          </p>
-          <div class="hero-actions">
-            <button class="btn btn-emergency" onclick="showSection('citizen')">
-              🚨 Report Emergency
-            </button>
-            <button class="btn btn-primary" onclick="showSection('citizen'); showCitizenTab('request')">
-              🤲 Request Help
-            </button>
-            <button class="btn btn-secondary" onclick="showSection('citizen'); showCitizenTab('track')">
-              📍 Track Request
-            </button>
-            <button class="btn btn-secondary" onclick="showSection('helpguide')">
-              📋 Emergency Guide
-            </button>
+        <div class="hero-container">
+          <div class="hero-content">
+            <div class="hero-eyebrow"><span class="pulse-dot"></span> India’s connected relief network</div>
+            <h1 class="hero-title">
+              <span class="gradient-text">Sahay-Setu</span>
+              <br/>Disaster Relief Platform
+            </h1>
+            <p class="hero-mantra">
+              <span class="mantra-item">Right Help</span>
+              <span class="mantra-sep">→</span>
+              <span class="mantra-item">Right Person</span>
+              <span class="mantra-sep">→</span>
+              <span class="mantra-item">Right Place</span>
+              <span class="mantra-sep">→</span>
+              <span class="mantra-item">Right Time</span>
+            </p>
+            <p class="hero-desc">
+              A unified platform connecting <strong>Citizens, NGOs, and Government</strong> authorities to deliver rapid, coordinated disaster response and relief management.
+            </p>
+            <div class="hero-actions">
+              <button class="btn btn-emergency" onclick="showSection('citizen')">
+                🚨 Report Emergency
+              </button>
+              <button class="btn btn-primary" onclick="showSection('citizen'); showCitizenTab('request')">
+                🤲 Request Help
+              </button>
+              <button class="btn btn-secondary" onclick="showSection('citizen'); showCitizenTab('track')">
+                📍 Track Request
+              </button>
+              <button class="btn btn-secondary" onclick="showSection('helpguide')">
+                📋 Emergency Guide
+              </button>
+            </div>
+            <div class="hero-proof" aria-label="Platform capabilities">
+              <div class="hero-proof-card">
+                <div class="hero-proof-badge">🌐</div>
+                <div class="hero-proof-info">
+                  <span class="hero-proof-title">One Shared Network</span>
+                  <span class="hero-proof-sub">Citizens, NGOs, and authorities</span>
+                </div>
+              </div>
+              <div class="hero-proof-card">
+                <div class="hero-proof-badge">⚡</div>
+                <div class="hero-proof-info">
+                  <span class="hero-proof-title">Clear Next Steps</span>
+                  <span class="hero-proof-sub">From report to resolution</span>
+                </div>
+              </div>
+            </div>
+            <div class="hero-trust-row">
+              <span>● Live public alerts</span>
+              <span>● Verified response partners</span>
+              <span>● 24/7 emergency guidance</span>
+            </div>
           </div>
-          <div class="hero-proof" aria-label="Platform capabilities">
-            <div class="hero-proof-item">
-              <span class="hero-proof-mark">01</span>
-              <span><strong>One shared network</strong><small>Citizens, NGOs, and authorities</small></span>
-            </div>
-            <div class="hero-proof-item">
-              <span class="hero-proof-mark">02</span>
-              <span><strong>Clear next steps</strong><small>From report to resolution</small></span>
-            </div>
-          </div>
-          <div class="hero-trust-row">
-            <span>● Live public alerts</span>
-            <span>● Verified response partners</span>
-            <span>● 24/7 emergency guidance</span>
-          </div>
-        </div>
-        <div class="hero-visual">
-          <div class="hero-visual-heading"><span class="pulse-dot red"></span><span>Response snapshot</span><span class="demo-data-label">LIVE / DEMO</span></div>
-          <div class="hero-stats-grid">
-            <div class="stat-card urgent">
-              <div class="stat-icon">🚨</div>
-              <div class="stat-value" data-live-metric="activeRequests">—</div>
-              <div class="stat-label">Active Requests</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon">🤝</div>
-              <div class="stat-value" data-live-metric="approvedNgos">—</div>
-              <div class="stat-label">Approved NGO Applications</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon">👥</div>
-              <div class="stat-value" data-live-metric="volunteers">—</div>
-              <div class="stat-label">Volunteers</div>
-            </div>
-            <div class="stat-card success">
-              <div class="stat-icon">✅</div>
-              <div class="stat-value" data-live-metric="resolved">—</div>
-              <div class="stat-label">Resolved</div>
+          <div class="hero-visual">
+            <div class="hero-visual-heading"><span class="pulse-dot red"></span><span>Response snapshot</span><span class="demo-data-label">LIVE / DEMO</span></div>
+            <div class="hero-stats-grid">
+              <div class="stat-card urgent">
+                <div class="stat-icon">🚨</div>
+                <div class="stat-value" data-live-metric="activeRequests">—</div>
+                <div class="stat-label">Active Requests</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">🤝</div>
+                <div class="stat-value" data-live-metric="approvedNgos">—</div>
+                <div class="stat-label">Approved NGO Applications</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value" data-live-metric="volunteers">—</div>
+                <div class="stat-label">Volunteers</div>
+              </div>
+              <div class="stat-card success">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" data-live-metric="resolved">—</div>
+                <div class="stat-label">Resolved</div>
+              </div>
             </div>
           </div>
         </div>
@@ -389,7 +397,6 @@
               <li>✓ Track Request Status</li>
               <li>✓ Register as Volunteer</li>
               <li>✓ Donate & Contribute</li>
-              <li>✓ View Nearby Relief</li>
             </ul>
             <button class="portal-btn">Enter Citizen Portal →</button>
           </div>
@@ -433,35 +440,30 @@
         </div>
         <div class="flow-steps">
           <div class="flow-step">
-            <div class="flow-num">1</div>
             <div class="flow-icon">📍</div>
             <h4>Report Need</h4>
             <p>Citizen submits emergency request with location and details</p>
           </div>
           <div class="flow-arrow">→</div>
           <div class="flow-step">
-            <div class="flow-num">2</div>
             <div class="flow-icon">🔍</div>
             <h4>Verification</h4>
             <p>Request is verified and categorized by urgency level</p>
           </div>
           <div class="flow-arrow">→</div>
           <div class="flow-step">
-            <div class="flow-num">3</div>
             <div class="flow-icon">🤝</div>
             <h4>Coordination</h4>
             <p>NGO & Government coordinate resources and response teams</p>
           </div>
           <div class="flow-arrow">→</div>
           <div class="flow-step">
-            <div class="flow-num">4</div>
             <div class="flow-icon">🚁</div>
             <h4>Assistance</h4>
             <p>Volunteers and resources deployed to the affected location</p>
           </div>
           <div class="flow-arrow">→</div>
           <div class="flow-step">
-            <div class="flow-num">5</div>
             <div class="flow-icon">✅</div>
             <h4>Resolved</h4>
             <p>Help delivered and request marked resolved with report</p>
@@ -502,7 +504,6 @@
           <button class="sub-tab" onclick="showCitizenTab('track')" id="ctab-track">📊 Track Status</button>
           <button class="sub-tab" onclick="showCitizenTab('volunteer')" id="ctab-volunteer">👐 Volunteer</button>
           <button class="sub-tab" onclick="showCitizenTab('donate')" id="ctab-donate">💛 Donate</button>
-          <button class="sub-tab" onclick="showCitizenTab('nearby')" id="ctab-nearby">📍 Nearby Relief</button>
         </div>
 
         <!-- Report Emergency Tab -->
@@ -712,7 +713,16 @@
               </div>
               <button type="submit" class="btn btn-emergency btn-full">🆘 Submit Help Request</button>
             </form>
-            <div class="nearby-resources"><h4>Nearby Relief Resources</h4><p>Open current resource listings to see live availability and locations.</p><button type="button" class="btn btn-secondary" onclick="showCitizenTab('nearby')">View Nearby Relief</button></div></div>
+            <div class="dash-panel relief-info-panel">
+              <div class="dp-header"><h4>🚨 Fast Response Coordination</h4></div>
+              <p>Submitted requests are securely broadcast to verified NGOs, local relief commissioners, and volunteer teams deployed in your area.</p>
+              <div class="info-checklist">
+                <p>✓ Automated priority triage</p>
+                <p>✓ Real-time status tracking via Request ID</p>
+                <p>✓ Coordinated emergency dispatch</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Track Status Tab -->
@@ -1030,28 +1040,7 @@
             </div>
           </div>
         </div>
-
-        <!-- Nearby Relief Tab -->
-        <div class="tab-content" id="citizen-tab-nearby">
-          <div class="panel-header">
-            <h3>📍 Nearby Relief Resources</h3>
-            <p>Find food, water, shelter, medical aid, and distribution centers near you.</p>
-          </div>
-          <div class="nearby-controls">
-            <div class="location-input">
-              <input type="text" id="nearby-loc" placeholder="Enter your location..." onchange="loadReliefResources()" />
-              <button class="location-btn" onclick="getLocation('nearby-loc')">📍 Detect</button>
-            </div>
-            <div class="filter-pills">
-              <button class="filter-pill active" onclick="filterNearby('all', this)">All</button>
-              <button class="filter-pill" onclick="filterNearby('food', this)">🍱 Food</button>
-              <button class="filter-pill" onclick="filterNearby('water', this)">💧 Water</button>
-              <button class="filter-pill" onclick="filterNearby('shelter', this)">🏠 Shelter</button>
-              <button class="filter-pill" onclick="filterNearby('medical', this)">🏥 Medical</button>
-            </div>
-          </div>
-          <div class="nearby-grid" id="nearbyGrid"><p class="request-empty-state">Choose Nearby Relief to load current resource listings.</p></div></div>
-        </div>
+      </div>
     </section>
 
     <!-- ========== NGO PORTAL ========== -->
@@ -1067,8 +1056,83 @@
       </div>
 
       <div class="portal-body">
-        <!-- NGO Sub-tabs -->
-        <div class="sub-tabs">
+        <!-- ===== NGO LOGIN GATE (Shown when not authenticated as NGO) ===== -->
+        <div class="gov-login-gate ngo-login-gate" id="ngo-login-gate">
+          <div class="gov-gate-card ngo-gate-card">
+            <div class="gov-emblem-badge ngo-emblem-badge">
+              <span class="gov-security-tag">VERIFIED RELIEF PARTNER · FIELD COORDINATION GATEWAY</span>
+            </div>
+            <h2>NGO Operations Gateway</h2>
+            <p class="gov-gate-desc">
+              Dedicated disaster coordination and relief operations portal. Access is restricted to verified Non-Governmental Organizations, field coordinators, and authorized relief workers.
+            </p>
+
+            <form class="gov-login-form ngo-login-form" id="ngoLoginForm" onsubmit="handleNgoLogin(event)">
+              <div class="form-group">
+                <label for="ngoLoginEmail">Registered NGO Email <span class="req">*</span></label>
+                <div class="gov-input-wrap">
+                  <input type="email" id="ngoLoginEmail" placeholder="coordinator@seedsindia.org / krishan-ngo@sahay-setu.com" required autocomplete="username" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="ngoLoginPassword">Access Password <span class="req">*</span></label>
+                <div class="gov-input-wrap">
+                  <input type="password" id="ngoLoginPassword" placeholder="Enter NGO access password" required autocomplete="current-password" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="ngoLoginOrg">Designated Organization / Entity</label>
+                <select id="ngoLoginOrg" class="enhanced-select">
+                  <option>SEEDS India — Sustainable Environment and Ecological Development</option>
+                  <option>Goonj — Disaster Relief & Community Rehabilitation</option>
+                  <option>Rapid Response — National Disaster Relief Operations</option>
+                  <option>Oxfam India — Humanitarian Response Team</option>
+                  <option>Care India — Emergency Humanitarian Aid</option>
+                </select>
+              </div>
+
+              <div class="gov-login-message" id="ngoLoginMessage" role="alert" hidden></div>
+
+              <div class="gov-gate-actions">
+                <button type="submit" class="btn btn-primary btn-full gov-submit-btn">
+                  Verify Credentials & Enter NGO Workspace
+                </button>
+                <button type="button" class="btn btn-secondary btn-full gov-demo-btn ngo-demo-btn" onclick="quickNgoLogin()">
+                  Quick Demo Login: Krishan NGO (Field Coordinator)
+                </button>
+              </div>
+
+              <div class="gov-gate-security-notice">
+                <span>Verified NGO Partner · TLS Encrypted · Audit Trail Enabled · Field Coordination Active</span>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- ===== NGO AUTHENTICATED WORKSPACE VIEW ===== -->
+        <div class="ngo-authenticated-view" id="ngo-authenticated-view" hidden>
+          <!-- Active NGO Coordinator Credential Header -->
+          <div class="gov-officer-banner ngo-officer-banner">
+            <div class="gov-officer-info">
+              <span class="gov-live-dot"></span>
+              <div class="gov-officer-meta">
+                <span class="gov-officer-badge">AUTHENTICATED NGO COORDINATOR</span>
+                <h3 class="gov-officer-name" id="ngoCoordinatorName">Krishan NGO</h3>
+                <span class="gov-officer-email" id="ngoCoordinatorEmail">krishan-ngo@sahay-setu.com · SEEDS India Relief Operations</span>
+              </div>
+            </div>
+            <div class="gov-officer-actions">
+              <span class="gov-session-timer">Operations Session Active</span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="logoutNgo()">
+                Lock & Log Out
+              </button>
+            </div>
+          </div>
+
+          <!-- NGO Sub-tabs -->
+          <div class="sub-tabs">
           <button class="sub-tab active" onclick="showNGOTab('dashboard')" id="ntab-dashboard">📊 Dashboard</button>
           <button class="sub-tab" onclick="showNGOTab('requests')" id="ntab-requests">📋 Requests</button>
           <button class="sub-tab" onclick="showNGOTab('resources')" id="ntab-resources">📦 Resources</button>
@@ -1084,10 +1148,6 @@
               <div class="org-badge verified">NGO WORKSPACE</div>
               <h2>Organization Workspace</h2>
               <p>Relief operations dashboard</p>
-            </div>
-            <div class="dashboard-time">
-              <div class="live-time" id="ngoLiveTime"></div>
-              <div class="last-update">Organization data loads from the API</div>
             </div>
           </div>
           <div class="kpi-grid">
@@ -1257,11 +1317,13 @@
             </div>
             <div class="dash-panel">
               <div class="dp-header"><h4>Donation Summary</h4></div>
-              <div class="donation-summary" id="ngoDonationSummary"><p>Donation intents are not processed payments. Associated records will appear here after loading.</p></div></div>
+              <div class="donation-summary" id="ngoDonationSummary"><p>Donation intents are not processed payments. Associated records will appear here after loading.</p></div>
             </div>
           </div>
         </div>
-    </section>
+      </div> <!-- End ngo-authenticated-view -->
+    </div> <!-- End portal-body -->
+  </section>
 
     <!-- ========== GOVERNMENT PORTAL ========== -->
     <section id="section-government" class="section">
@@ -1278,7 +1340,6 @@
         <div class="gov-login-gate" id="gov-login-gate">
           <div class="gov-gate-card">
             <div class="gov-emblem-badge">
-              <span class="gov-emblem-icon">🇮🇳</span>
               <span class="gov-security-tag">RESTRICTED ACCESS · OFFICIAL USE ONLY</span>
             </div>
             <h2>Government Command Gateway</h2>
@@ -1290,7 +1351,6 @@
               <div class="form-group">
                 <label for="govLoginEmail">Official Government Email <span class="req">*</span></label>
                 <div class="gov-input-wrap">
-                  <span class="gov-input-icon">🏛️</span>
                   <input type="email" id="govLoginEmail" placeholder="officer@ndma.gov.in / krishan-gov@sahay-setu.com" required autocomplete="username" />
                 </div>
               </div>
@@ -1298,7 +1358,6 @@
               <div class="form-group">
                 <label for="govLoginPassword">Access Password <span class="req">*</span></label>
                 <div class="gov-input-wrap">
-                  <span class="gov-input-icon">🔒</span>
                   <input type="password" id="govLoginPassword" placeholder="Enter government access password" required autocomplete="current-password" />
                 </div>
               </div>
@@ -1318,15 +1377,15 @@
 
               <div class="gov-gate-actions">
                 <button type="submit" class="btn btn-primary btn-full gov-submit-btn">
-                  🛡️ Verify Credentials & Enter Command Center
+                  Verify Credentials & Enter Command Center
                 </button>
                 <button type="button" class="btn btn-secondary btn-full gov-demo-btn" onclick="quickGovLogin()">
-                  ⚡ Quick Demo Login: Krishan Government (NDRF Official)
+                  Quick Demo Login: Krishan Government (NDRF Official)
                 </button>
               </div>
 
               <div class="gov-gate-security-notice">
-                <span>🔐 256-Bit TLS Encrypted · Audit Trail Enabled · Unauthorized access is punishable by law</span>
+                <span>256-Bit TLS Encrypted · Audit Trail Enabled · Unauthorized access is punishable by law</span>
               </div>
             </form>
           </div>
@@ -1345,9 +1404,9 @@
               </div>
             </div>
             <div class="gov-officer-actions">
-              <span class="gov-session-timer">🛡️ Command Session Active</span>
+              <span class="gov-session-timer">Command Session Active</span>
               <button type="button" class="btn btn-secondary btn-sm" onclick="logoutGovernment()">
-                🔒 Lock & Log Out
+                Lock & Log Out
               </button>
             </div>
           </div>
@@ -1486,6 +1545,72 @@
             <a href="tel:1090" class="sos-num">1090 <small>Women Helpline</small></a>
             <a href="tel:1800-180-1253" class="sos-num">1800-180-1253 <small>NDMA</small></a>
           </div>
+        </div>
+
+        <!-- AI Disaster Safety Assistant Chatbot -->
+        <div class="safety-ai-card" id="safetyAiCard">
+          <div class="safety-ai-header">
+            <div class="safety-ai-header-left">
+              <div class="safety-ai-avatar">🤖</div>
+              <div class="safety-ai-title-wrap">
+                <div class="safety-ai-title">
+                  <h3>Sahay-Setu AI Disaster & Safety Guide</h3>
+                  <span class="ai-badge" id="aiStatusBadge"><span class="pulse-dot green"></span> Live Assistant</span>
+                </div>
+                <p class="safety-ai-subtitle">Instant guidance on disaster evacuation, first aid, emergency survival kits & safety protocols powered by Google Gemini</p>
+              </div>
+            </div>
+            <div class="safety-ai-header-actions">
+              <button type="button" class="btn-ai-clear" onclick="clearAiChat()" title="Clear conversation">
+                🧹 Clear Chat
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick prompt suggestions -->
+          <div class="safety-ai-quick-prompts">
+            <span class="quick-prompt-label">Quick Safety Prompts:</span>
+            <button type="button" class="quick-chip" onclick="askAiAssistant('What should I do right now during a sudden flash flood?')">🌊 Sudden Flood</button>
+            <button type="button" class="quick-chip" onclick="askAiAssistant('What to do during an earthquake inside a multi-story building?')">🌍 Earthquake in Building</button>
+            <button type="button" class="quick-chip" onclick="askAiAssistant('How do I treat severe burns or cuts before the ambulance arrives?')">🩹 Burn & Cut First Aid</button>
+            <button type="button" class="quick-chip" onclick="askAiAssistant('What are the essential items for a 72-hour family emergency kit?')">🎒 72-Hr Survival Kit</button>
+            <button type="button" class="quick-chip" onclick="askAiAssistant('What are the key national disaster helpline numbers in India?')">📞 Key Helplines</button>
+          </div>
+
+          <!-- Chat messages area -->
+          <div class="safety-ai-messages" id="safetyAiMessages">
+            <div class="ai-msg assistant">
+              <div class="ai-msg-avatar">🤖</div>
+              <div class="ai-msg-bubble">
+                <div class="ai-msg-author">Sahay-Setu Safety AI</div>
+                <div class="ai-msg-text">
+                  Namaste! I am your <strong>Disaster Safety Assistant</strong>. Ask me anything about:
+                  <ul>
+                    <li>Immediate actions during floods, earthquakes, fires, cyclones, or landslides</li>
+                    <li>First-aid and emergency triage protocols</li>
+                    <li>72-hour emergency survival kits and family preparation</li>
+                    <li>Shelter finding and safe evacuation techniques</li>
+                  </ul>
+                  <em>How can I assist your safety today? Click any suggestion above or type below.</em>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat input bar -->
+          <form class="safety-ai-input-form" id="safetyAiForm" onsubmit="handleAiChatSubmit(event)">
+            <input 
+              type="text" 
+              id="safetyAiInput" 
+              class="safety-ai-input" 
+              placeholder="Ask a disaster safety question (e.g. 'How to escape a smoke-filled room?')..." 
+              autocomplete="off"
+            />
+            <button type="submit" class="safety-ai-send-btn" id="safetyAiSendBtn" aria-label="Send Message">
+              <span>Send</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+          </form>
         </div>
 
         <!-- Disaster Selector -->
@@ -2003,7 +2128,8 @@
     </div>
     <div class="footer-bottom">
       <span>© 2026 Sahay-Setu. Built for India's resilience.</span>
-      <span>🇮🇳 Made with dedication for disaster relief</span>
+      <span class="footer-creator">Made by <strong>Krishan Jain</strong></span>
+      <span>🇮🇳 Dedicated for disaster relief</span>
     </div>
   </footer>
   <script type="module" src="/src/script.js"></script>

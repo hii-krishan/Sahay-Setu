@@ -268,7 +268,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const demoAccount = DEMO_ACCOUNTS[email.toLowerCase()];
     if (demoAccount && demoAccount.password === password) {
-      const demoUser = { email, user_metadata: { full_name: demoAccount.name }, app_metadata: { role: demoAccount.role }, demo: true };
+      const demoUser = {
+        email,
+        user_metadata: { full_name: demoAccount.name },
+        app_metadata: {
+          role: demoAccount.role,
+          roles: [demoAccount.role],
+          ngo_verified: demoAccount.role === 'ngo' ? true : undefined
+        },
+        demo: true
+      };
       localStorage.setItem('sahaySetuDemoSession', JSON.stringify(demoUser));
       if (rememberMe.checked) localStorage.setItem('sahaySetuRememberedEmail', email);
       showMessage(`Demo ${demoAccount.role} access enabled.`, 'success');
@@ -495,7 +504,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const demoUser = {
         email: cleanEmail,
         user_metadata: { full_name: demoAccount.name },
-        app_metadata: { role: 'government' },
+        app_metadata: { role: 'government', roles: ['government'] },
         demo: true
       };
       localStorage.setItem('sahaySetuDemoSession', JSON.stringify(demoUser));
@@ -516,6 +525,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     throw new Error('Invalid Government credentials. Please check your official email and password.');
+  };
+
+  window.loginNgoDirect = async (email, password) => {
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    const cleanPassword = String(password || '');
+    const demoAccount = DEMO_ACCOUNTS[cleanEmail];
+    if (demoAccount && demoAccount.password === cleanPassword && demoAccount.role === 'ngo') {
+      const demoUser = {
+        email: cleanEmail,
+        user_metadata: { full_name: demoAccount.name },
+        app_metadata: { role: 'ngo', roles: ['ngo'], ngo_verified: true },
+        demo: true
+      };
+      localStorage.setItem('sahaySetuDemoSession', JSON.stringify(demoUser));
+      renderAuthState(demoUser);
+      return { success: true, user: demoUser };
+    }
+
+    if (supabase) {
+      const { data, error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password: cleanPassword });
+      if (error) throw error;
+      const role = data.user?.app_metadata?.role;
+      if (role !== 'ngo') {
+        await supabase.auth.signOut();
+        throw new Error('Access denied. This account does not possess verified NGO credentials.');
+      }
+      renderAuthState(data.user);
+      return { success: true, user: data.user };
+    }
+
+    throw new Error('Invalid NGO credentials. Please check your registered email and password.');
   };
 
   window.logoutCurrentSession = async () => {

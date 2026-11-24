@@ -1,44 +1,49 @@
-# Sahay-Setu
+# Sahay-Setu (सहाय सेतु)
 
-Vite-served single-page frontend, Express API, MongoDB Atlas storage, and Supabase Auth. The frontend is under `index.html` and `src/`; the API is `server/index.js`. Existing page designs remain in place.
+> **Bridge of Relief & Coordination** — A unified, real-time disaster management and humanitarian relief coordination platform designed to bridge citizens in distress, registered NGOs, and government emergency authorities during critical crisis events.
 
-## Local setup
+---
 
-1. Install Node.js compatible with Vite 8, then run `npm install` in the project directory.
-2. Copy `.env.example` to `.env`. Fill in the MongoDB Atlas connection URI and Supabase project URL/key locally. The example contains placeholders only. `.env` is ignored by Git.
-3. In Supabase Auth, configure the local site URL and allowed redirect URLs for `http://localhost:5173`.
-4. In MongoDB Atlas, allow the development machine's network address and ensure the database user has read/write access to the `sahay_setu` database.
-5. Run `npm run dev` to start Vite and the API together. The frontend is normally at `http://localhost:5173`; the API is at `http://localhost:5000/api`.
-6. Check `http://localhost:5000/api/health`. `databaseReady` must be `true` before relying on data routes.
+## What is Sahay Setu?
 
-To start the processes separately, use two terminals: run `npm run server` for the API, then `npx vite --host 127.0.0.1` for the frontend. The frontend command serves the project at `http://localhost:5173`.
+**Sahay Setu** (meaning *"Bridge of Help"*) is a centralized digital emergency response network. In times of natural disasters and humanitarian crises (such as floods, cyclones, earthquakes, landslides, and extreme weather emergencies), communication channels and resource allocation are often fragmented. 
 
-`npm run build` creates the static frontend in `dist/`. `npm run preview` serves that build locally. `npm run server` starts only the API. `npm run check` runs backend Node syntax checks; the production Vite build also parses and bundles frontend modules. Neither command performs browser or end-to-end tests. There is no automated test suite configured in `package.json`.
+Sahay Setu unites all three vital stakeholders into a single, cohesive, and transparent ecosystem:
 
-## Authentication and roles
+1. **Affected Citizens & Communities** — Request immediate emergency assistance, report ground incidents, track request resolution status, register as relief volunteers, pledge aid, and consult a 24/7 AI Emergency Safety Guide.
+2. **Verified NGOs & Relief Teams** — Coordinate ground missions, triage and fulfill citizen requests, manage relief inventory (rations, clean water, medical supplies), mobilize volunteers, and organize relief camps.
+3. **Government Disaster Authorities (NDRF / NDMA / SDMA)** — Broadcast verified early warnings and red alerts, maintain live multi-district command oversight, evaluate ground reports, and oversee rapid multi-agency disaster operations.
 
-The frontend uses only the Supabase publishable/anon key. Never put a Supabase service-role key in frontend code or `VITE_*` variables. The API validates bearer tokens with Supabase `auth.getUser()` and authorizes privileged routes only from trusted `app_metadata` claims. Citizen sign-up does not assign a privileged role.
+---
 
-Supabase JS manages session persistence and refresh using its client defaults. Sign out from the profile control to clear the session. “Remember email on this device” stores only the login email in browser local storage; it does not set a 30-day session lifetime. Email/password and Google OAuth redirects use the current frontend origin and path, which must be allowed in Supabase Auth URL configuration. The Terms of Service and Privacy Policy links are not live documents yet; signup currently states this instead of collecting a false policy agreement. Publish accurate documents before production launch.
+## Key Portals & Features
 
-An authorized Supabase administrator must provision government accounts with `app_metadata.role = "government"`, or a verified NGO with `app_metadata.role = "ngo"` and `app_metadata.ngo_verified = true` (or the equivalent supported `roles` array plus verification flag). Review of an NGO application in this app only records Approved/Rejected; it does not grant the NGO role. Apply claims through a trusted Supabase administrator workflow, never user-editable metadata. Role changes may require a fresh login/token.
+### 1. Citizen Portal
+- **Emergency Help Request**: Swiftly request urgent rescue, medical attention, food, clean drinking water, or temporary shelter.
+- **Ground Incident Reporting**: Report hazards, infrastructure damage, and disaster developments with location details and severity levels.
+- **Transparent Request Tracking**: Each submission generates a unique tracking identifier (`SS-YYYY-XXXX`) for live status checks from submission to on-ground resolution.
+- **AI Safety Guide**: An intelligent, round-the-clock emergency chatbot powered by Gemini AI that delivers instant first-aid advice, evacuation steps, survival protocols, and emergency helpline contact details.
+- **Volunteering & Contributions**: Sign up as an active field volunteer or submit donation intents directly linked to verified relief organizations.
 
-## Separate frontend and backend deployment
+### 2. NGO Operations Gateway
+- **Dedicated Relief Workspace**: Restricted-access portal for verified Non-Governmental Organizations and field coordinators.
+- **Request Dispatch & Triage**: Monitor incoming citizen calls for help, allocate teams, and update delivery statuses in real time.
+- **Resource Inventory Management**: Monitor and allocate stockpiles of food packets, clean water, blankets, medicines, and rescue gear.
+- **Volunteer Management**: Assign registered volunteers to specific disaster zones based on operational needs.
+- **Relief Camp Coordination**: Manage camp locations, intake capacities, and basic amenity supplies.
 
-1. Deploy `server/index.js` as a Node service and set backend environment variables: `NODE_ENV=production`, `PORT` (provided by the host), `MONGODB_URI`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `FRONTEND_URL` containing the exact allowed frontend origin(s), comma-separated if needed.
-2. Keep the MongoDB Atlas network access list restricted to the backend host and use a least-privilege database user. The API creates non-unique query indexes on startup; first-time index creation may take time on a large database.
-3. Deploy the Vite build as a static site. Set `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and `VITE_API_BASE_URL` to the public API base ending in `/api`, then rebuild. These are build-time values. Configure the matching Supabase site/redirect URLs and backend CORS origin.
-4. Use HTTPS for both public services. If the backend is behind a known reverse proxy, set `TRUST_PROXY_HOPS` to the documented hop count; leave it `0` otherwise. Do not set it broadly to trust arbitrary forwarding headers.
-5. Confirm health, CORS, sign-in redirects, public flows, and role-protected flows in staging before promoting any deployment. This repository does not deploy or alter production settings.
+### 3. Government Command Center
+- **Early Warning & Alert System**: Issue urgent, high-priority public warnings (Red, Orange, Yellow) across affected regions with safety instructions.
+- **Central Situation Dashboard**: High-level command overview tracking total emergencies, casualties, operational NGOs, and active rescue personnel.
+- **Ground Report Verification**: Review, validate, and escalate citizen incident reports with audit trails.
+- **Inter-Agency Governance**: Oversee NGO partner verifications to ensure organized, non-duplicative relief efforts.
 
-The tracking limiter is in-memory per API process. A multi-instance production deployment needs a shared rate-limit store or a single API instance; do not assume per-process limits coordinate across instances. Payment processing, tax receipts, SMS/email notifications, automated volunteer assignment, and map plotting are not implemented. Donation submissions record intents only. Existing analytics aggregate database records; they do not represent a live map or external reporting feed.
+---
 
-## Handoff status
+## Mission
 
-The repository contains implementations for the listed citizen, NGO, Government, authentication, and authorization flows. The production build and backend syntax check have been run locally; these checks do not verify browser behavior, database integration, or role-protected workflows. No successful test with real authorized staging accounts is claimed. Use [TESTING-CHECKLIST.md](TESTING-CHECKLIST.md) to record each staging result as Pass, Fail, or Not run.
+To eliminate response delays, ensure transparent resource distribution, and ensure that every citizen in distress receives timely help when disaster strikes.
 
-Before staging tests, configure all values in `.env.example` with staging-only credentials: backend `NODE_ENV`, `PORT`, `MONGODB_URI`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `FRONTEND_URL`, and `TRUST_PROXY_HOPS` when applicable; frontend build-time `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and `VITE_API_BASE_URL`. In staging Supabase Auth, set the site URL and allowed callback/redirect URLs for the staging frontend and enable Google only if it will be tested. In MongoDB Atlas, allow the staging API host and grant the staging DB user access to the staging database. A Supabase administrator must create/provision disposable test users and assign government `app_metadata.role = "government"` and verified NGO `app_metadata.role = "ngo"`, `app_metadata.ngo_verified = true` claims (or the supported `roles` array form). The administrator must apply claims through a trusted admin workflow; approving an NGO application in the app does not grant authorization. Refresh the affected user's session after claim changes.
+---
 
-New volunteer registrations and donation intents may be linked to an approved NGO through the citizen forms. Older records without an `ngoId` are intentionally not assigned to an organization automatically; review and plan any legacy association separately before changing stored records.
-
-See [TESTING-CHECKLIST.md](TESTING-CHECKLIST.md) for safe staging verification. Never use real personal records for testing and never run cleanup against production.
+**Made by Krishan Jain**
