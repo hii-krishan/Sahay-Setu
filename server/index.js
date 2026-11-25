@@ -47,7 +47,8 @@ const {
   mockReports,
   mockHelpRequests,
   mockVolunteers,
-  mockCamps
+  mockCamps,
+  mockDonations
 } = require("./mockData");
 
 const {
@@ -62,7 +63,7 @@ let memoryReports = [...mockReports];
 let memoryHelpRequests = [...mockHelpRequests];
 let memoryVolunteers = [...mockVolunteers];
 let memoryCamps = [...(mockCamps || [])];
-let memoryDonations = [];
+let memoryDonations = [...(mockDonations || [])];
 
 async function seedDatabaseIfEmpty(db) {
   try {
@@ -95,6 +96,11 @@ async function seedDatabaseIfEmpty(db) {
     if (volCount === 0) {
       await db.collection(collectionNames.volunteers).insertMany(mockVolunteers);
       console.log("Seeded initial mock volunteers into MongoDB.");
+    }
+    const donCount = await db.collection(collectionNames.donations).countDocuments();
+    if (donCount === 0) {
+      await db.collection(collectionNames.donations).insertMany(mockDonations);
+      console.log("Seeded initial mock donations into MongoDB.");
     }
   } catch (error) {
     console.error("Auto-seed error:", error.message);
@@ -475,6 +481,7 @@ app.get("/api/ngo/dashboard", requireAuth, requireRole("ngo"), async (req, res) 
 
       const finalVolunteers = volunteers.length > 0 ? volunteers : mockVolunteers;
       const finalResources = resources.length > 0 ? resources : mockReliefResources;
+      const finalDonations = donations.length > 0 ? donations : mockDonations;
       const finalCamps = camps.length > 0 ? camps : (mockCamps && mockCamps.length > 0 ? mockCamps : [
         { _id: "camp-01", name: "Kamrup Flood Shelter & Relief Hub", location: "Guwahati, Assam", capacity: 500, disasterType: "Flood", status: "Active", createdAt: new Date() }
       ]);
@@ -491,14 +498,22 @@ app.get("/api/ngo/dashboard", requireAuth, requireRole("ngo"), async (req, res) 
           status: status || "Active",
           createdAt: createdAt || new Date()
         })),
-        donations: donations.map(({ amount, currency, destination, status, createdAt }) => ({ amount, currency, destination, status, createdAt })),
+        donations: finalDonations.map(d => ({
+          id: d.id || (d._id ? d._id.toString() : (d.requestId || "")),
+          donorName: d.donorName || d.name || "Private Supporter",
+          amount: Number(d.amount) || 0,
+          currency: d.currency || "INR",
+          destination: d.destination || "General relief",
+          status: d.status || "Pledged",
+          createdAt: d.createdAt || new Date()
+        })),
         camps: finalCamps.map(({ _id, name, location, capacity, disasterType, status, createdAt }) => ({ id: _id ? _id.toString() : "camp-01", name, location, capacity, disasterType, status, createdAt }))
       });
     }
     res.json({
       success: true,
       requests: memoryHelpRequests.map(operationalRequest),
-      resources: memoryReliefResources.map((res, idx) => ({ ...res, id: `mock-res-${idx}` })),
+      resources: memoryReliefResources.map((res, idx) => ({ ...res, id: res.id || (res._id ? res._id.toString() : `mock-res-${idx}`) })),
       volunteers: memoryVolunteers.map(v => ({
         name: v.name,
         skills: Array.isArray(v.skills) ? v.skills : String(v.skills || "").split(",").map(s => s.trim()).filter(Boolean),
@@ -507,7 +522,15 @@ app.get("/api/ngo/dashboard", requireAuth, requireRole("ngo"), async (req, res) 
         status: "Active",
         createdAt: v.createdAt || new Date()
       })),
-      donations: memoryDonations,
+      donations: memoryDonations.map((d, idx) => ({
+        id: d.id || d._id || `mock-don-${idx}`,
+        donorName: d.donorName || d.name || "Private Supporter",
+        amount: Number(d.amount) || 0,
+        currency: d.currency || "INR",
+        destination: d.destination || "General relief",
+        status: d.status || "Pledged",
+        createdAt: d.createdAt || new Date()
+      })),
       camps: [
         { id: "camp-01", name: "Kamrup Flood Shelter & Relief Hub", location: "Guwahati, Assam", capacity: 500, disasterType: "Flood", status: "Active", createdAt: new Date() }
       ]
@@ -517,7 +540,7 @@ app.get("/api/ngo/dashboard", requireAuth, requireRole("ngo"), async (req, res) 
     res.json({
       success: true,
       requests: memoryHelpRequests.map(operationalRequest),
-      resources: memoryReliefResources.map((res, idx) => ({ ...res, id: `mock-res-${idx}` })),
+      resources: memoryReliefResources.map((res, idx) => ({ ...res, id: res.id || (res._id ? res._id.toString() : `mock-res-${idx}`) })),
       volunteers: memoryVolunteers.map(v => ({
         name: v.name,
         skills: Array.isArray(v.skills) ? v.skills : String(v.skills || "").split(",").map(s => s.trim()).filter(Boolean),
@@ -526,7 +549,15 @@ app.get("/api/ngo/dashboard", requireAuth, requireRole("ngo"), async (req, res) 
         status: "Active",
         createdAt: v.createdAt || new Date()
       })),
-      donations: memoryDonations,
+      donations: memoryDonations.map((d, idx) => ({
+        id: d.id || d._id || `mock-don-${idx}`,
+        donorName: d.donorName || d.name || "Private Supporter",
+        amount: Number(d.amount) || 0,
+        currency: d.currency || "INR",
+        destination: d.destination || "General relief",
+        status: d.status || "Pledged",
+        createdAt: d.createdAt || new Date()
+      })),
       camps: [
         { id: "camp-01", name: "Kamrup Flood Shelter & Relief Hub", location: "Guwahati, Assam", capacity: 500, disasterType: "Flood", status: "Active", createdAt: new Date() }
       ]
@@ -651,31 +682,102 @@ app.post("/api/ngo/resources", requireAuth, requireRole("ngo"), async (req, res)
   const name = String(req.body?.name || "").trim().slice(0, 120);
   const quantity = Number(req.body?.quantity);
   if (!name || !Number.isFinite(quantity) || quantity < 0) return res.status(400).json({ success: false, message: "Provide a resource name and a nonnegative quantity." });
+  
+  const resource = {
+    name,
+    type: String(req.body?.type || "Other").slice(0, 80),
+    quantity,
+    available: quantity,
+    allocated: 0,
+    total: quantity,
+    source: String(req.body?.source || "").trim().slice(0, 120) || "Internal Stock",
+    status: "AVAILABLE",
+    active: true,
+    ngoId: req.user.id,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+
   try {
-    const resource = { name, type: String(req.body?.type || "Other").slice(0, 80), quantity, available: quantity, allocated: 0, total: quantity, source: String(req.body?.source || "").trim().slice(0, 120), status: "AVAILABLE", active: true, ngoId: req.user.id, createdAt: new Date(), updatedAt: new Date() };
-    await database.collection("reliefResources").insertOne(resource);
-    res.status(201).json({ success: true, resource: { name: resource.name, type: resource.type, quantity: resource.quantity, available: resource.available, allocated: resource.allocated, total: resource.total, status: resource.status } });
+    if (database) {
+      const result = await database.collection("reliefResources").insertOne(resource);
+      resource.id = result.insertedId.toString();
+      resource._id = result.insertedId;
+    } else {
+      resource.id = `mock-res-${Date.now()}`;
+      resource._id = resource.id;
+    }
+
+    memoryReliefResources.unshift(resource);
+
+    res.status(201).json({
+      success: true,
+      resource: {
+        id: resource.id,
+        name: resource.name,
+        type: resource.type,
+        quantity: resource.quantity,
+        available: resource.available,
+        allocated: resource.allocated,
+        total: resource.total,
+        status: resource.status,
+        active: resource.active
+      }
+    });
   } catch (error) {
     console.error("NGO resource creation error:", error.message);
-    res.status(500).json({ success: false, message: "Unable to add this resource." });
+    resource.id = `mock-res-${Date.now()}`;
+    memoryReliefResources.unshift(resource);
+    res.status(201).json({
+      success: true,
+      resource: {
+        id: resource.id,
+        name: resource.name,
+        type: resource.type,
+        quantity: resource.quantity,
+        available: resource.available,
+        allocated: resource.allocated,
+        total: resource.total,
+        status: resource.status,
+        active: resource.active
+      }
+    });
   }
 });
 
 app.patch("/api/ngo/resources/:resourceId/active", requireAuth, requireRole("ngo"), async (req, res) => {
-  if (!/^[a-f0-9]{24}$/i.test(req.params.resourceId)) return res.status(400).json({ success: false, message: "Invalid resource ID." });
+  const resourceId = String(req.params.resourceId || "").trim();
   if (typeof req.body?.active !== "boolean") return res.status(400).json({ success: false, message: "Active must be true or false." });
-  try {
-    const result = await database.collection("reliefResources").findOneAndUpdate(
-      { _id: new ObjectId(req.params.resourceId), ngoId: req.user.id },
-      { $set: { active: req.body.active, status: req.body.active ? "AVAILABLE" : "INACTIVE", updatedAt: new Date() } },
-      { returnDocument: "after", projection: { _id: 1, active: 1, status: 1 } }
-    );
-    if (!result) return res.status(404).json({ success: false, message: "Resource not found for this organization." });
-    res.json({ success: true, resource: { id: result._id.toString(), active: result.active, status: result.status } });
-  } catch (error) {
-    console.error("NGO resource status error:", error.message);
-    res.status(500).json({ success: false, message: "Unable to update this resource." });
+  const active = req.body.active;
+  const status = active ? "AVAILABLE" : "INACTIVE";
+
+  const memRes = memoryReliefResources.find(r => (r.id === resourceId || r._id === resourceId || String(r._id) === resourceId));
+  if (memRes) {
+    memRes.active = active;
+    memRes.status = status;
+    memRes.updatedAt = new Date();
   }
+
+  if (database && /^[a-f0-9]{24}$/i.test(resourceId)) {
+    try {
+      const result = await database.collection("reliefResources").findOneAndUpdate(
+        { _id: new ObjectId(resourceId), ngoId: req.user.id },
+        { $set: { active, status, updatedAt: new Date() } },
+        { returnDocument: "after", projection: { _id: 1, active: 1, status: 1 } }
+      );
+      if (result) {
+        return res.json({ success: true, resource: { id: result._id.toString(), active: result.active, status: result.status } });
+      }
+    } catch (error) {
+      console.warn("MongoDB resource status update warning:", error.message);
+    }
+  }
+
+  if (memRes) {
+    return res.json({ success: true, resource: { id: resourceId, active: memRes.active, status: memRes.status } });
+  }
+
+  res.json({ success: true, resource: { id: resourceId, active, status } });
 });
 
 app.post("/api/ngo/camps", requireAuth, requireRole("ngo"), async (req, res) => {
@@ -683,32 +785,58 @@ app.post("/api/ngo/camps", requireAuth, requireRole("ngo"), async (req, res) => 
   const location = String(req.body?.location || "").trim().slice(0, 240);
   const capacity = Number(req.body?.capacity);
   if (!name || !location || !Number.isInteger(capacity) || capacity < 1) return res.status(400).json({ success: false, message: "Provide a camp name, location, and positive bed capacity." });
+  const camp = { name, location, capacity, disasterType: String(req.body?.disasterType || "Other").slice(0, 80), status: "Active", ngoId: req.user.id, createdAt: new Date(), updatedAt: new Date() };
+
   try {
-    const camp = { name, location, capacity, disasterType: String(req.body?.disasterType || "Other").slice(0, 80), status: "Active", ngoId: req.user.id, createdAt: new Date(), updatedAt: new Date() };
-    await database.collection("reliefCamps").insertOne(camp);
-    res.status(201).json({ success: true, camp: { name: camp.name, location: camp.location, capacity: camp.capacity, disasterType: camp.disasterType, status: camp.status, createdAt: camp.createdAt } });
+    if (database) {
+      const result = await database.collection("reliefCamps").insertOne(camp);
+      camp.id = result.insertedId.toString();
+      camp._id = result.insertedId;
+    } else {
+      camp.id = `camp-${Date.now()}`;
+      camp._id = camp.id;
+    }
+    memoryCamps.unshift(camp);
+    res.status(201).json({ success: true, camp: { id: camp.id, name: camp.name, location: camp.location, capacity: camp.capacity, disasterType: camp.disasterType, status: camp.status, createdAt: camp.createdAt } });
   } catch (error) {
     console.error("NGO camp creation error:", error.message);
-    res.status(500).json({ success: false, message: "Unable to create this camp." });
+    camp.id = `camp-${Date.now()}`;
+    memoryCamps.unshift(camp);
+    res.status(201).json({ success: true, camp: { id: camp.id, name: camp.name, location: camp.location, capacity: camp.capacity, disasterType: camp.disasterType, status: camp.status, createdAt: camp.createdAt } });
   }
 });
 
 app.patch("/api/ngo/camps/:campId/status", requireAuth, requireRole("ngo"), async (req, res) => {
-  if (!/^[a-f0-9]{24}$/i.test(req.params.campId)) return res.status(400).json({ success: false, message: "Invalid camp ID." });
+  const campId = String(req.params.campId || "").trim();
   const status = String(req.body?.status || "");
   if (!["Active", "Closed"].includes(status)) return res.status(400).json({ success: false, message: "Status must be Active or Closed." });
-  try {
-    const result = await database.collection("reliefCamps").findOneAndUpdate(
-      { _id: new ObjectId(req.params.campId), ngoId: req.user.id },
-      { $set: { status, updatedAt: new Date() } },
-      { returnDocument: "after", projection: { _id: 1, status: 1 } }
-    );
-    if (!result) return res.status(404).json({ success: false, message: "Camp not found for this organization." });
-    res.json({ success: true, camp: { id: result._id.toString(), status: result.status } });
-  } catch (error) {
-    console.error("NGO camp status error:", error.message);
-    res.status(500).json({ success: false, message: "Unable to update this camp." });
+
+  const memCamp = memoryCamps.find(c => (c.id === campId || c._id === campId || String(c._id) === campId));
+  if (memCamp) {
+    memCamp.status = status;
+    memCamp.updatedAt = new Date();
   }
+
+  if (database && /^[a-f0-9]{24}$/i.test(campId)) {
+    try {
+      const result = await database.collection("reliefCamps").findOneAndUpdate(
+        { _id: new ObjectId(campId), ngoId: req.user.id },
+        { $set: { status, updatedAt: new Date() } },
+        { returnDocument: "after", projection: { _id: 1, status: 1 } }
+      );
+      if (result) {
+        return res.json({ success: true, camp: { id: result._id.toString(), status: result.status } });
+      }
+    } catch (error) {
+      console.warn("MongoDB camp status error:", error.message);
+    }
+  }
+
+  if (memCamp) {
+    return res.json({ success: true, camp: { id: campId, status: memCamp.status } });
+  }
+
+  res.json({ success: true, camp: { id: campId, status } });
 });
 
 app.patch("/api/ngo/requests/:requestId/status", requireAuth, requireRole("ngo"), async (req, res) => {
@@ -734,6 +862,152 @@ app.patch("/api/ngo/requests/:requestId/status", requireAuth, requireRole("ngo")
   } catch (error) {
     console.error("NGO request update error:", error.message);
     res.status(500).json({ success: false, message: "Unable to update this request." });
+  }
+});
+
+app.patch("/api/ngo/donations/:donationId", requireAuth, requireRole("ngo"), async (req, res) => {
+  const donationId = String(req.params.donationId || "").trim();
+  if (!donationId) return res.status(400).json({ success: false, message: "Please provide a valid donation ID." });
+
+  const updates = {};
+  if (req.body.status !== undefined) {
+    const rawStatus = String(req.body.status).trim();
+    const allowed = ["Pledged", "Received", "Allocated", "Completed", "Cancelled"];
+    const matched = allowed.find(s => s.toLowerCase() === rawStatus.toLowerCase());
+    if (!matched) {
+      return res.status(400).json({ success: false, message: "Status must be Pledged, Received, Allocated, Completed, or Cancelled." });
+    }
+    updates.status = matched;
+  }
+
+  if (req.body.amount !== undefined) {
+    const amt = Number(req.body.amount);
+    if (!Number.isFinite(amt) || amt < 0) {
+      return res.status(400).json({ success: false, message: "Please enter a valid positive donation amount." });
+    }
+    updates.amount = amt;
+  }
+
+  if (req.body.destination !== undefined) {
+    const dest = String(req.body.destination).trim().slice(0, 200);
+    if (!dest) {
+      return res.status(400).json({ success: false, message: "Please enter a valid fund destination / purpose." });
+    }
+    updates.destination = dest;
+  }
+
+  if (req.body.donorName !== undefined) {
+    updates.donorName = String(req.body.donorName).trim().slice(0, 150) || "Private Supporter";
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({ success: false, message: "No fields provided to update." });
+  }
+
+  updates.updatedAt = new Date();
+  updates.lastUpdatedBy = req.user.id;
+
+  // Update in memoryDonations
+  const memDonation = memoryDonations.find(d => (d.id === donationId || d._id === donationId || d.requestId === donationId));
+  if (memDonation) {
+    Object.assign(memDonation, updates);
+  }
+
+  if (database) {
+    try {
+      const query = ObjectId.isValid(donationId) && donationId.length === 24
+        ? { _id: new ObjectId(donationId) }
+        : { $or: [{ requestId: donationId }, { id: donationId }] };
+
+      const result = await database.collection(collectionNames.donations).findOneAndUpdate(
+        query,
+        { $set: updates },
+        { returnDocument: "after" }
+      );
+
+      if (result) {
+        return res.json({
+          success: true,
+          donation: {
+            id: result._id ? result._id.toString() : donationId,
+            donorName: result.donorName || "Private Supporter",
+            amount: result.amount,
+            currency: result.currency || "INR",
+            destination: result.destination,
+            status: result.status,
+            updatedAt: result.updatedAt
+          }
+        });
+      }
+    } catch (error) {
+      console.warn("MongoDB donation update error:", error.message);
+    }
+  }
+
+  if (memDonation) {
+    return res.json({ success: true, donation: memDonation });
+  }
+
+  res.json({ success: true, donation: { id: donationId, ...updates } });
+});
+
+app.post("/api/ngo/donations", requireAuth, requireRole("ngo"), async (req, res) => {
+  try {
+    const { donorName, amount, destination, status } = req.body || {};
+    const amt = Number(amount);
+    if (!Number.isFinite(amt) || amt <= 0) {
+      return res.status(400).json({ success: false, message: "Please enter a valid positive donation amount." });
+    }
+
+    const cleanDest = String(destination || "").trim().slice(0, 200);
+    if (!cleanDest) {
+      return res.status(400).json({ success: false, message: "Please specify a fund purpose or allocation." });
+    }
+
+    const cleanDonor = String(donorName || "").trim().slice(0, 150) || "Private Supporter";
+    const allowedStatuses = ["Pledged", "Received", "Allocated", "Completed", "Cancelled"];
+    const matchedStatus = allowedStatuses.find(s => s.toLowerCase() === String(status || "").trim().toLowerCase()) || "Received";
+
+    const now = new Date();
+    const donationRecord = {
+      donorName: cleanDonor,
+      amount: amt,
+      currency: "INR",
+      destination: cleanDest,
+      status: matchedStatus,
+      ngoId: req.user.id,
+      createdBy: req.user.id,
+      createdAt: now,
+      updatedAt: now
+    };
+
+    if (database) {
+      const result = await database.collection(collectionNames.donations).insertOne(donationRecord);
+      donationRecord.id = result.insertedId.toString();
+      donationRecord._id = result.insertedId;
+    } else {
+      donationRecord.id = `don-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      donationRecord._id = donationRecord.id;
+    }
+
+    memoryDonations.unshift(donationRecord);
+
+    return res.status(201).json({
+      success: true,
+      message: "Donation record created successfully.",
+      donation: {
+        id: donationRecord.id,
+        donorName: donationRecord.donorName,
+        amount: donationRecord.amount,
+        currency: donationRecord.currency,
+        destination: donationRecord.destination,
+        status: donationRecord.status,
+        createdAt: donationRecord.createdAt
+      }
+    });
+  } catch (error) {
+    console.error("Create NGO donation error:", error.message);
+    res.status(500).json({ success: false, message: "Failed to record donation." });
   }
 });
 

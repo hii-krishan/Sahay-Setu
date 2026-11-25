@@ -1307,17 +1307,20 @@
           </div>
           <div class="section-row">
             <div class="dash-panel">
-              <div class="dp-header"><h4>Recent Donations</h4></div>
+              <div class="dp-header">
+                <h4>Recent Donations</h4>
+                <button class="btn btn-primary btn-sm" onclick="showAddDonation()">+ Add Donation</button>
+              </div>
               <table class="data-table">
-                <thead><tr><th>Donor</th><th>Amount</th><th>Purpose</th><th>Date</th><th>Status</th></tr></thead>
+                <thead><tr><th>Donor</th><th>Amount</th><th>Purpose</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
                 <tbody id="ngoDonationsBody">
-              <tr><td colspan="5">Sign in with a verified NGO account to load associated donation intents.</td></tr>
-            </tbody>
+                  <tr><td colspan="6">Sign in with a verified NGO account to load associated donation intents.</td></tr>
+                </tbody>
               </table>
             </div>
             <div class="dash-panel">
               <div class="dp-header"><h4>Donation Summary</h4></div>
-              <div class="donation-summary" id="ngoDonationSummary"><p>Donation intents are not processed payments. Associated records will appear here after loading.</p></div>
+              <div class="donation-summary" id="ngoDonationSummary"><p>Associated donation records and total contributions will appear here after loading.</p></div>
             </div>
           </div>
         </div>

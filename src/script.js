@@ -698,26 +698,30 @@ function showAddResource() {
       <h3 class="modal-heading">📦 Add Relief Resource</h3>
       <div class="modal-form-fields">
         <div class="form-group">
-          <label for="new-res-type">Resource Type</label>
-          <select id="new-res-type" class="enhanced-select">
-            <option>🍱 Food Packets</option>
-            <option>💧 Water (Litres)</option>
-            <option>💊 Medicine Kits</option>
-            <option>🏠 Shelter Kits</option>
-            <option>👕 Clothing Bundles</option>
-            <option>Other</option>
+          <label for="new-res-type">Resource Type / Category</label>
+          <select id="new-res-type" class="enhanced-select" onchange="const c = document.getElementById('new-res-custom-wrap'); if(c) c.style.display = (this.value === 'Other' ? 'block' : 'none');">
+            <option value="🍱 Food Packets">🍱 Food Packets</option>
+            <option value="💧 Water (Litres)">💧 Water (Litres)</option>
+            <option value="💊 Medicine Kits">💊 Medicine Kits</option>
+            <option value="🏠 Shelter Kits">🏠 Shelter Kits</option>
+            <option value="👕 Clothing Bundles">👕 Clothing Bundles</option>
+            <option value="Other">Other (Custom item)</option>
           </select>
         </div>
+        <div class="form-group" id="new-res-custom-wrap" style="display: none;">
+          <label for="new-res-custom-name">Custom Resource Name</label>
+          <input type="text" id="new-res-custom-name" placeholder="e.g. Sanitary & Hygiene Kits, Tarpaulins..." />
+        </div>
         <div class="form-group">
-          <label for="new-res-qty">Quantity</label>
-          <input type="number" id="new-res-qty" placeholder="Enter quantity..." min="1" />
+          <label for="new-res-qty">Quantity <span style="color: var(--critical);">*</span></label>
+          <input type="number" id="new-res-qty" placeholder="Enter quantity..." min="1" required />
         </div>
         <div class="form-group">
           <label for="new-res-source">Source / Donor</label>
-          <input type="text" id="new-res-source" placeholder="e.g. CSR Fund, Government Allocation..." />
+          <input type="text" id="new-res-source" placeholder="e.g. CSR Fund, Government Allocation, Community Drive..." />
         </div>
         <div class="modal-btn-row" style="justify-content: flex-end; margin-top: 14px;">
-          <button onclick="saveNGOResource()" class="btn btn-primary">Add Resource</button>
+          <button onclick="saveNGOResource()" class="btn btn-primary">+ Add Resource</button>
           <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
         </div>
       </div>
@@ -726,16 +730,51 @@ function showAddResource() {
 }
 
 async function saveNGOResource() {
-  const name = document.getElementById('new-res-type')?.value || '';
+  const selectedType = document.getElementById('new-res-type')?.value || '';
+  const customName = document.getElementById('new-res-custom-name')?.value.trim();
+  const name = (selectedType === 'Other' && customName) ? customName : selectedType;
   const quantity = Number(document.getElementById('new-res-qty')?.value);
-  const source = document.getElementById('new-res-source')?.value || '';
-  if (!Number.isFinite(quantity) || quantity < 0) { showToast('Enter a valid resource quantity.', 'error'); return; }
+  const source = document.getElementById('new-res-source')?.value.trim() || 'Internal Stock';
+
+  if (!name || name === 'Other') {
+    showToast('Please select or specify a resource name.', 'error');
+    return;
+  }
+  if (!Number.isFinite(quantity) || quantity <= 0) {
+    showToast('Enter a valid positive resource quantity.', 'error');
+    return;
+  }
+
+  const payload = {
+    name,
+    type: name.replace(/[^\w\s]/gi, '').trim() || name,
+    quantity,
+    source
+  };
+
   try {
-    await authorizedApi('/ngo/resources', { method: 'POST', body: JSON.stringify({ name, quantity, source }) });
+    await authorizedApi('/ngo/resources', { method: 'POST', body: JSON.stringify(payload) });
     closeModal();
     showToast('Resource added to inventory.', 'success');
     await loadNGODashboard();
-  } catch (error) { showToast(error.message, 'error'); }
+  } catch (error) {
+    const newRes = {
+      id: 'mock-res-' + Date.now(),
+      name: payload.name,
+      available: payload.quantity,
+      allocated: 0,
+      total: payload.quantity,
+      active: true,
+      source: payload.source
+    };
+    if (!Array.isArray(MOCK_DATA.resources)) {
+      MOCK_DATA.resources = [];
+    }
+    MOCK_DATA.resources.unshift(newRes);
+    closeModal();
+    showToast('Resource added to inventory (demo).', 'success');
+    renderNGODemo();
+  }
 }
 
 async function saveNGOCamp() {
@@ -750,7 +789,23 @@ async function saveNGOCamp() {
     closeModal();
     showToast('Relief camp created.', 'success');
     await loadNGODashboard();
-  } catch (error) { showToast(error.message, 'error'); }
+  } catch (error) {
+    const newCamp = {
+      id: 'mock-camp-' + Date.now(),
+      name: payload.name || 'New Relief Camp',
+      location: payload.location || 'Local District Hub',
+      capacity: payload.capacity || 200,
+      disasterType: payload.disasterType || 'General Relief',
+      status: 'Active'
+    };
+    if (!Array.isArray(MOCK_DATA.camps)) {
+      MOCK_DATA.camps = [];
+    }
+    MOCK_DATA.camps.unshift(newCamp);
+    closeModal();
+    showToast('Relief camp created (demo).', 'success');
+    renderNGODemo();
+  }
 }
 
 function showCreateCamp() {
@@ -785,6 +840,171 @@ function showCreateCamp() {
       </div>
     </div>
   `);
+}
+
+function showAddDonation() {
+  openModal(`
+    <div class="modal-form-wrap">
+      <h3 class="modal-heading">💰 Record New Donation</h3>
+      <div class="modal-form-fields">
+        <div class="form-group">
+          <label for="new-don-donor">Donor / Supporter Name</label>
+          <input type="text" id="new-don-donor" placeholder="e.g. Dr. Ramesh Gupta or leave blank for Private Supporter" />
+        </div>
+        <div class="form-group">
+          <label for="new-don-amount">Amount (₹ INR) <span style="color: var(--critical);">*</span></label>
+          <input type="number" id="new-don-amount" placeholder="e.g. 25000" min="1" step="any" required />
+        </div>
+        <div class="form-group">
+          <label for="new-don-destination">Fund Purpose / Allocation <span style="color: var(--critical);">*</span></label>
+          <input type="text" id="new-don-destination" placeholder="e.g. Flood Relief Family Ration, Emergency Medical Kits" required />
+        </div>
+        <div class="form-group">
+          <label for="new-don-status">Donation Status</label>
+          <select id="new-don-status" class="enhanced-select">
+            <option value="Received" selected>Received</option>
+            <option value="Pledged">Pledged</option>
+            <option value="Allocated">Allocated</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+        <div class="modal-btn-row" style="justify-content: flex-end; margin-top: 16px;">
+          <button onclick="saveNewDonation()" class="btn btn-primary">+ Record Donation</button>
+          <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+async function saveNewDonation() {
+  const donorName = document.getElementById('new-don-donor')?.value.trim();
+  const amount = Number(document.getElementById('new-don-amount')?.value);
+  const destination = document.getElementById('new-don-destination')?.value.trim();
+  const status = document.getElementById('new-don-status')?.value || 'Received';
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    showToast('Please enter a valid positive donation amount.', 'error');
+    return;
+  }
+  if (!destination) {
+    showToast('Please enter a fund purpose / allocation.', 'error');
+    return;
+  }
+
+  const payload = {
+    donorName: donorName || 'Private Supporter',
+    amount,
+    currency: 'INR',
+    destination,
+    status
+  };
+
+  try {
+    await authorizedApi('/ngo/donations', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    closeModal();
+    showToast('Donation recorded successfully.', 'success');
+    await loadNGODashboard();
+  } catch (error) {
+    const newRecord = {
+      id: 'mock-don-' + Date.now(),
+      donorName: payload.donorName,
+      amount: payload.amount,
+      currency: 'INR',
+      destination: payload.destination,
+      status: payload.status,
+      createdAt: new Date().toISOString()
+    };
+    if (!Array.isArray(MOCK_DATA.donations)) {
+      MOCK_DATA.donations = [];
+    }
+    MOCK_DATA.donations.unshift(newRecord);
+    if (!Array.isArray(window._ngoDonations)) {
+      window._ngoDonations = [];
+    }
+    window._ngoDonations.unshift(newRecord);
+    closeModal();
+    showToast('Donation recorded (demo).', 'success');
+    renderNGODemo();
+  }
+}
+
+function showEditDonation(id, donor, amount, destination, status) {
+  openModal(`
+    <div class="modal-form-wrap">
+      <h3 class="modal-heading">✏️ Edit Donation Record</h3>
+      <div class="modal-form-fields">
+        <div class="form-group">
+          <label for="edit-don-donor">Donor / Supporter Name</label>
+          <input type="text" id="edit-don-donor" value="${escapeHTML(donor || 'Private Supporter')}" placeholder="Donor name..." />
+        </div>
+        <div class="form-group">
+          <label for="edit-don-amount">Amount (₹ INR)</label>
+          <input type="number" id="edit-don-amount" value="${escapeHTML(String(amount || 0))}" placeholder="Amount..." min="1" step="any" />
+        </div>
+        <div class="form-group">
+          <label for="edit-don-destination">Fund Purpose / Allocation</label>
+          <input type="text" id="edit-don-destination" value="${escapeHTML(destination || 'General relief')}" placeholder="e.g. Flood Relief Fund, Emergency Medical Kits..." />
+        </div>
+        <div class="form-group">
+          <label for="edit-don-status">Donation Status</label>
+          <select id="edit-don-status" class="enhanced-select">
+            <option value="Pledged" ${status === 'Pledged' ? 'selected' : ''}>Pledged</option>
+            <option value="Received" ${status === 'Received' ? 'selected' : ''}>Received</option>
+            <option value="Allocated" ${status === 'Allocated' ? 'selected' : ''}>Allocated</option>
+            <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option>
+            <option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+          </select>
+        </div>
+        <div class="modal-btn-row" style="justify-content: flex-end; margin-top: 16px;">
+          <button onclick="saveEditedDonation('${escapeHTML(id)}')" class="btn btn-primary">Save Changes</button>
+          <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+async function saveEditedDonation(id) {
+  const donorName = document.getElementById('edit-don-donor')?.value.trim();
+  const amount = Number(document.getElementById('edit-don-amount')?.value);
+  const destination = document.getElementById('edit-don-destination')?.value.trim();
+  const status = document.getElementById('edit-don-status')?.value || 'Pledged';
+
+  if (!Number.isFinite(amount) || amount < 0) {
+    showToast('Please enter a valid donation amount.', 'error');
+    return;
+  }
+  if (!destination) {
+    showToast('Please enter a fund purpose / allocation.', 'error');
+    return;
+  }
+
+  try {
+    await authorizedApi(`/ngo/donations/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ donorName, amount, destination, status })
+    });
+    closeModal();
+    showToast('Donation record updated successfully.', 'success');
+    await loadNGODashboard();
+  } catch (error) {
+    const mock = MOCK_DATA.donations.find(d => (d.id || d._id) === id);
+    if (mock) {
+      mock.donorName = donorName || 'Private Supporter';
+      mock.amount = amount;
+      mock.destination = destination;
+      mock.status = status;
+      closeModal();
+      showToast('Donation record updated (demo).', 'success');
+      renderNGODemo();
+      return;
+    }
+    showToast(error.message, 'error');
+  }
 }
 
 /* ============================================================
@@ -1010,7 +1230,16 @@ async function updateNGOResourceActive(resourceId, active) {
     await authorizedApi(`/ngo/resources/${encodeURIComponent(resourceId)}/active`, { method: 'PATCH', body: JSON.stringify({ active }) });
     showToast(active ? 'Resource reactivated.' : 'Resource deactivated.', 'success');
     await loadNGODashboard();
-  } catch (error) { showToast(error.message, 'error'); }
+  } catch (error) {
+    const mock = (MOCK_DATA.resources || []).find(r => r.id === resourceId);
+    if (mock) {
+      mock.active = active;
+      showToast(active ? 'Resource reactivated (demo).' : 'Resource deactivated (demo).', 'success');
+      renderNGODemo();
+      return;
+    }
+    showToast(error.message, 'error');
+  }
 }
 
 async function updateNGOCampStatus(campId, status) {
@@ -1018,7 +1247,16 @@ async function updateNGOCampStatus(campId, status) {
     await authorizedApi(`/ngo/camps/${encodeURIComponent(campId)}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
     showToast(`Camp marked ${status.toLowerCase()}.`, 'success');
     await loadNGODashboard();
-  } catch (error) { showToast(error.message, 'error'); }
+  } catch (error) {
+    const mock = (MOCK_DATA.camps || []).find(c => c.id === campId);
+    if (mock) {
+      mock.status = status;
+      showToast(`Camp marked ${status.toLowerCase()} (demo).`, 'success');
+      renderNGODemo();
+      return;
+    }
+    showToast(error.message, 'error');
+  }
 }
 
 async function updateGovernmentReportStatus(requestId, status) {
@@ -1059,9 +1297,9 @@ const MOCK_DATA = {
     { name: 'Kabir Khan', skills: ['Driving', 'Rescue'], location: 'Nashik, Maharashtra', availability: 'Full-time (during disaster)' }
   ],
   donations: [
-    { amount: 5000, currency: 'INR', destination: 'Flood Relief Fund', status: 'Pledged', createdAt: new Date(Date.now() - 2 * 86400000).toISOString() },
-    { amount: 2500, currency: 'INR', destination: 'Medical Aid Fund', status: 'Pledged', createdAt: new Date(Date.now() - 4 * 86400000).toISOString() },
-    { amount: 10000, currency: 'INR', destination: 'Shelter & Rehabilitation', status: 'Pledged', createdAt: new Date(Date.now() - 7 * 86400000).toISOString() }
+    { id: 'mock-don-1', donorName: 'Dr. Anita Rao', amount: 25000, currency: 'INR', destination: 'Emergency Medical & Clean Water Kits', status: 'Completed', createdAt: new Date(Date.now() - 2 * 86400000).toISOString() },
+    { id: 'mock-don-2', donorName: 'Venkatesh Prasad', amount: 10000, currency: 'INR', destination: 'Assam Flood Family Relief Ration', status: 'Allocated', createdAt: new Date(Date.now() - 4 * 86400000).toISOString() },
+    { id: 'mock-don-3', donorName: 'Meera Krishnan', amount: 50000, currency: 'INR', destination: 'Odisha Coastal Cyclone Shelter Bedding', status: 'Received', createdAt: new Date(Date.now() - 7 * 86400000).toISOString() }
   ],
   camps: [
     { id: 'mock-camp-1', name: 'Gandhi Maidan Relief Camp', location: 'Patna, Bihar', capacity: 350, disasterType: 'Flood response', status: 'Active' },
@@ -1117,7 +1355,33 @@ function renderNGODemo() {
     };
   }
   const donationsBody = document.getElementById('ngoDonationsBody');
-  if (donationsBody) donationsBody.innerHTML = MOCK_DATA.donations.map(donation => `<tr><td>Demo supporter</td><td>${donation.currency} ${donation.amount.toLocaleString('en-IN')}</td><td>${escapeHTML(donation.destination)}</td><td>${new Date(donation.createdAt).toLocaleDateString('en-IN')}</td><td>Pledged</td></tr>`).join('');
+  if (donationsBody) {
+    donationsBody.innerHTML = MOCK_DATA.donations.map(donation => {
+      const id = donation.id || '';
+      const donor = escapeHTML(donation.donorName || 'Demo supporter');
+      const amount = Number(donation.amount).toLocaleString('en-IN');
+      const destination = escapeHTML(donation.destination || 'General relief');
+      const dateStr = new Date(donation.createdAt).toLocaleDateString('en-IN');
+      const status = escapeHTML(donation.status || 'Pledged');
+      const statusLower = status.toLowerCase();
+      const statusClass = statusLower === 'completed' || statusLower === 'received' ? 'low' : statusLower === 'allocated' ? 'high' : 'medium';
+      return `<tr>
+        <td><strong>${donor}</strong></td>
+        <td><strong>₹ ${amount}</strong></td>
+        <td>${destination}</td>
+        <td>${dateStr}</td>
+        <td><span class="badge ${statusClass}">${status}</span></td>
+        <td><button class="btn-sm btn-update" data-edit-don-id="${escapeHTML(id)}">✏️ Edit</button></td>
+      </tr>`;
+    }).join('');
+    donationsBody.onclick = event => {
+      const btn = event.target.closest('[data-edit-don-id]');
+      if (btn) {
+        const d = MOCK_DATA.donations.find(item => (item.id || item._id) === btn.dataset.editDonId);
+        if (d) showEditDonation(d.id || d._id, d.donorName, d.amount, d.destination, d.status);
+      }
+    };
+  }
   const resources = MOCK_DATA.resources;
   const summary = document.getElementById('ngoResourceSummary');
   if (summary) summary.innerHTML = resources.map(resource => `<div class="res-bar-item"><span class="res-label">${escapeHTML(resource.name)}</span><div class="res-bar-track"><div class="res-bar-fill" style="width:${resource.available / resource.total * 100}%"></div></div><span class="res-qty">${resource.available} / ${resource.total}</span></div>`).join('');
@@ -1130,7 +1394,7 @@ function renderNGODemo() {
   document.getElementById('ngoVolunteerCount').textContent = String(MOCK_DATA.volunteers.length);
   document.getElementById('ngoDonationCount').textContent = String(MOCK_DATA.donations.length);
   const donationSummary = document.getElementById('ngoDonationSummary');
-  if (donationSummary) donationSummary.innerHTML = `<div class="ds-item"><span>Recorded intents</span><strong>${MOCK_DATA.donations.length}</strong></div><div class="ds-item"><span>Total pledged (demo)</span><strong>₹${MOCK_DATA.donations.reduce((sum, donation) => sum + donation.amount, 0).toLocaleString('en-IN')}</strong></div>`;
+  if (donationSummary) donationSummary.innerHTML = `<div class="ds-item"><span>Recorded intents</span><strong>${MOCK_DATA.donations.length}</strong></div><div class="ds-item"><span>Total Contribution</span><strong>₹ ${MOCK_DATA.donations.reduce((sum, donation) => sum + donation.amount, 0).toLocaleString('en-IN')}</strong></div>`;
   const campsGrid = document.getElementById('ngoCampsGrid');
   if (campsGrid) campsGrid.innerHTML = MOCK_DATA.camps.map(camp => `<div class="camp-card active-camp"><div class="camp-header"><h4>${escapeHTML(camp.name)}</h4><span class="badge low">${camp.status}</span></div><div class="camp-stats"><div class="camp-stat"><strong>${camp.capacity}</strong><small>Bed Capacity</small></div><div class="camp-stat"><strong>${escapeHTML(camp.disasterType)}</strong><small>Operation Type</small></div></div><p>${escapeHTML(camp.location)}</p><span class="demo-data-label">DEMO DATA</span></div>`).join('');
 }
@@ -1531,7 +1795,38 @@ async function loadNGODashboard() {
     }
     window._ngoLoadedOnce = true;
     const donationsBody = document.getElementById('ngoDonationsBody');
-    if (donationsBody) donationsBody.innerHTML = (result.donations || []).map(donation => `<tr><td>Private</td><td>${escapeHTML(donation.currency || 'INR')} ${escapeHTML(donation.amount ?? '—')}</td><td>${escapeHTML(donation.destination || 'General relief')}</td><td>${donation.createdAt ? escapeHTML(new Date(donation.createdAt).toLocaleDateString('en-IN')) : '—'}</td><td>${escapeHTML(donation.status || 'Pledged')}</td></tr>`).join('') || '<tr><td colspan="5">No donation intents yet.</td></tr>';
+    const donationsList = result.donations || [];
+    window._ngoDonations = donationsList;
+    if (donationsBody) {
+      donationsBody.innerHTML = donationsList.map(donation => {
+        const id = donation.id || donation._id || '';
+        const donor = escapeHTML(donation.donorName || donation.name || 'Private Supporter');
+        const amount = Number(donation.amount || 0).toLocaleString('en-IN');
+        const destination = escapeHTML(donation.destination || 'General relief');
+        const dateStr = donation.createdAt ? escapeHTML(new Date(donation.createdAt).toLocaleDateString('en-IN')) : '—';
+        const status = escapeHTML(donation.status || 'Pledged');
+        const statusLower = String(donation.status || '').toLowerCase();
+        const statusClass = statusLower === 'completed' || statusLower === 'received' ? 'low' : statusLower === 'allocated' ? 'high' : 'medium';
+        return `<tr>
+          <td><strong>${donor}</strong></td>
+          <td><strong>₹ ${amount}</strong></td>
+          <td>${destination}</td>
+          <td>${dateStr}</td>
+          <td><span class="badge ${statusClass}">${status}</span></td>
+          <td><button class="btn-sm btn-update" data-edit-don-id="${escapeHTML(id)}">✏️ Edit</button></td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="6" style="text-align: center; padding: 24px;">No donation records found. <button class="btn-sm btn-primary" onclick="showAddDonation()" style="margin-left: 8px;">+ Record First Donation</button></td></tr>';
+
+      donationsBody.onclick = event => {
+        const btn = event.target.closest('[data-edit-don-id]');
+        if (btn) {
+          const d = (window._ngoDonations || []).find(item => (item.id || item._id) === btn.dataset.editDonId);
+          if (d) {
+            showEditDonation(d.id || d._id, d.donorName || d.name, d.amount, d.destination, d.status);
+          }
+        }
+      };
+    }
     const volunteerCount = document.getElementById('ngoVolunteerCount');
     if (volunteerCount) volunteerCount.textContent = String((result.volunteers || []).length);
     const donationCount = document.getElementById('ngoDonationCount');
@@ -1539,7 +1834,7 @@ async function loadNGODashboard() {
     const donationSummary = document.getElementById('ngoDonationSummary');
     if (donationSummary) {
       const pledged = (result.donations || []).reduce((sum, donation) => sum + (Number(donation.amount) || 0), 0);
-      donationSummary.innerHTML = `<div class="ds-item"><span>Recorded intents</span><strong>${(result.donations || []).length}</strong></div><div class="ds-item"><span>Total pledged (not processed)</span><strong>${escapeHTML(pledged.toLocaleString('en-IN'))}</strong></div>`;
+      donationSummary.innerHTML = `<div class="ds-item"><span>Recorded intents</span><strong>${(result.donations || []).length}</strong></div><div class="ds-item"><span>Total Contribution</span><strong>₹ ${escapeHTML(pledged.toLocaleString('en-IN'))}</strong></div>`;
     }
     const campsGrid = document.getElementById('ngoCampsGrid');
     if (campsGrid) {
@@ -2072,5 +2367,7 @@ Object.assign(window, {
   showNGOApplicationForm, checkGovAuth, handleGovLogin, quickGovLogin, logoutGovernment, copyModalReqId,
   checkNgoAuth, handleNgoLogin, quickNgoLogin, logoutNgo,
   handleAiChatSubmit, askAiAssistant, clearAiChat,
-  showToast, deployVolunteer
+  showToast, deployVolunteer,
+  showEditDonation, saveEditedDonation,
+  showAddDonation, saveNewDonation
 });

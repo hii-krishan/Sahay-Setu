@@ -1,7 +1,3 @@
-// Initial mock data for Sahay-Setu Disaster Relief Platform
-// This data serves as the fallback when MongoDB is not connected,
-// and automatically seeds into MongoDB on first connection so you can edit it via MongoDB Compass / Atlas.
-
 const mockAlerts = [
   {
     title: "Flash Flood Warning - Brahmaputra River Basin",
@@ -517,6 +513,45 @@ const mockCamps = [
   }
 ];
 
+const mockDonations = [
+  {
+    id: "mock-don-1",
+    donorName: "Dr. Anita Rao",
+    amount: 25000,
+    currency: "INR",
+    destination: "Emergency Medical & Clean Water Kits",
+    status: "Completed",
+    createdAt: new Date("2026-09-15T10:30:00Z")
+  },
+  {
+    id: "mock-don-2",
+    donorName: "Venkatesh Prasad",
+    amount: 10000,
+    currency: "INR",
+    destination: "Assam Flood Family Relief Ration",
+    status: "Allocated",
+    createdAt: new Date("2026-09-28T14:15:00Z")
+  },
+  {
+    id: "mock-don-3",
+    donorName: "Meera Krishnan",
+    amount: 50000,
+    currency: "INR",
+    destination: "Odisha Coastal Cyclone Shelter Bedding",
+    status: "Received",
+    createdAt: new Date("2026-10-10T12:00:00Z")
+  },
+  {
+    id: "mock-don-4",
+    donorName: "Amaninder Singh",
+    amount: 15000,
+    currency: "INR",
+    destination: "Uttarakhand Landslide Community Kitchen",
+    status: "Pledged",
+    createdAt: new Date("2026-10-26T18:20:00Z")
+  }
+];
+
 module.exports = {
   mockAlerts,
   mockNgos,
@@ -524,5 +559,6 @@ module.exports = {
   mockReports,
   mockHelpRequests,
   mockVolunteers,
-  mockCamps
+  mockCamps,
+  mockDonations
 };
